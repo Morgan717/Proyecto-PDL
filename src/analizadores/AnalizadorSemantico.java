@@ -184,6 +184,8 @@ public class AnalizadorSemantico {
         }
     }
 
+
+
     private String tipo(String lexema){
         String res = "error";
         if(lexema.equals("cad")) {return "String";}
