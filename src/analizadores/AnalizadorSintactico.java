@@ -213,8 +213,14 @@ public class AnalizadorSintactico {
     private void EXP() {
         try {
             salida.write("16 ");
+            // viniendo del while token actual = ?
+            // produccion = "WHILE"
             VAL();
-            semantico.procesar();
+            if(!((pos.getProduccion().equals("IF") || pos.getProduccion().equals("WHILE")) && pos.getTokenActual().isEmpty())){
+                // esto quiere decir que estamos en la primera iteracion de el while o if a si que saltamos evitamos el procesar
+                semantico.procesar();
+            }
+            // token actual = + , &&, o ==
             pos.setTokenActual(tokenActual);
             EXPX();
         } catch (IOException e) {
@@ -226,17 +232,21 @@ public class AnalizadorSintactico {
         try {
             if (tokenSig.equals("+")) {
                 salida.write("17 ");
-                pos.setProduccion("+");
+                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("+");}
+                else{pos.setTokenActual(tokenSig);}// cambiamos el token para que se vea que ya hemos pasado primera iteracion del while
                 avanzar();
                 EXP();
             } else if (tokenSig.equals("&&")) {
                 salida.write("18 ");
-                pos.setProduccion("+");
+                // si no venimos de while cambiamos la produccion si no no
+                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("&&");}
+                else{pos.setTokenActual(tokenSig);}// cambiamos el token para que se vea que ya hemos pasado primera iteracion del while
                 avanzar();
                 EXP();
             } else if (tokenSig.equals("==")) {
                 salida.write("19 ");
-                pos.setProduccion("+");
+                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("==");}
+                else{pos.setTokenActual(tokenSig);}
                 avanzar();
                 EXP();
             }
@@ -281,6 +291,8 @@ public class AnalizadorSintactico {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        pos.setTokenActual("");
+        pos.setProduccion("WHILE");
         equipara("(");
         EXP();
         equipara(")");
@@ -292,6 +304,7 @@ public class AnalizadorSintactico {
     private void IF_STMT() {
         try {
             salida.write("25 ");
+            pos.setProduccion("IF");
             equipara("(");
             EXP();
             equipara(")");
@@ -347,8 +360,11 @@ public class AnalizadorSintactico {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        // token actual = output
         pos.setTokenActual(tokenActual);
+        pos.setProduccion("OUTPUT");
         EXP();
+
     }
 
     private void INPUT_STMT() {
@@ -358,6 +374,10 @@ public class AnalizadorSintactico {
             throw new RuntimeException(e);
         }
         equipara ("id");
+        pos.setProduccion("INPUT");
+        pos.setTokenSig(tokenActual);
+        semantico.procesar();
+
     }
 
     private void RETURN_STMT() {
@@ -392,10 +412,10 @@ public class AnalizadorSintactico {
             salida.write("35 ");
             if(tokenSig.equals("int")||tokenSig.equals("string")||
                     tokenSig.equals("boolean")||tokenSig.equals("void")) {
-                pos.setTokenActual(TIPOX());
+                pos.setTokenActual(TIPOX()); // metemos el tipo de funcion
                 equipara("id"); // lexema ya actualizado en semantico
-                pos.setProduccion("FUNC_DEF");
-                semantico.procesar();// procesamo la funcion
+                pos.setProduccion("FUNC");
+                semantico.procesar();// procesamos la funcion
                 equipara("(");
                 PARAMS();
                 equipara(")");

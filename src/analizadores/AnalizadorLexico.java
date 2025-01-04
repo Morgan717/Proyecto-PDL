@@ -137,7 +137,6 @@ public class AnalizadorLexico {
                     return "else";
                 default:
                     return "";
-
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -157,66 +156,39 @@ public class AnalizadorLexico {
             return "eof";
         }
         switch (cActual) {
-
-            case ' ':
-                return obtenerToken();
-            case '\n':
-                return obtenerToken();
-            case '\r':
-                return obtenerToken();
-            case '\t':
-                return obtenerToken();
+            case ' ':  return obtenerToken();
+            case '\n': return obtenerToken();
+            case '\r': return obtenerToken();
+            case '\t': return obtenerToken();
 
             case '(':
-                try {
-                    escrituraToken.write("<ParIzq,>\n");
-
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<ParIzq,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return "(";
 
             case ')':
-                try {
-                    escrituraToken.write("<ParDrch,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<ParDrch,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return ")";
             case '{':
-                try {
-                    escrituraToken.write("<LlavIzq,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<LlavIzq,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return "{";
             case '}':
-                try {
-                    escrituraToken.write("<LlavDrch,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<LlavDrch,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return "}";
             case ',':
-                try {
-                    escrituraToken.write("<Coma,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<Coma,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return ",";
             case ';':
-                try {
-                    escrituraToken.write("<PuntoComa,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<PuntoComa,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return ";";
             case '+':
-                try {
-                    escrituraToken.write("<OpArSuma,>\n");
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                try {escrituraToken.write("<OpArSuma,>\n");}
+                catch (IOException e) {throw new RuntimeException(e);}
                 return "+";
             case '&':
                 try {

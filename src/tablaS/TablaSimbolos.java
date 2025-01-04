@@ -8,14 +8,13 @@ import clasesAux.GestorErrores;
 
 public class TablaSimbolos {
 
-
-    private int pos;
+    private boolean zonaFuncion;
     private boolean zona_declaracion;
     private int despGlobal;
     private int despLocal;
 
     private int posTS;
-    GestorErrores gestorE;
+    private GestorErrores gestorE;
     private LinkedHashMap<String,Atributos> tablaG;
     private LinkedHashMap<String,Atributos> tablaActual;
     private LinkedHashMap<String,LinkedHashMap<String,Atributos>> pilaTFun;
@@ -31,30 +30,29 @@ public class TablaSimbolos {
         this.gestorE = g;
         despLocal = 0;
         despGlobal= 0;
-        pos = 0;
         posTS = 0;
         tablaG= new LinkedHashMap<>();
         tablaActual = tablaG;
         this.pilaTFun = new LinkedHashMap<>();
-
     }
-    private void error(String mensaje) { gestorE.error("Sintactico",mensaje); }
+
     public int getDespLocal() { return despLocal; }
     public void setDespLocal(int i ) { despLocal= i; }
     public boolean isZona_declaracion() { return zona_declaracion; }
     public void setZona_declaracion(boolean zona_declaracion) { this.zona_declaracion = zona_declaracion; }
     public boolean declarado(String lexema){ return tablaActual.get(lexema).declarado(); }
 
-
     public void crearTabla(String nombre) {
         despGlobal= despLocal;
         despLocal =0;
         pilaTFun.put(nombre,new LinkedHashMap<>());
         tablaActual= pilaTFun.get(nombre);
+        zonaFuncion=true;
     }
     public void liberarTabla() {
         despLocal = despGlobal;
         tablaActual = tablaG;
+        zonaFuncion=false;
     }
 
     public int añadir(String lexema){
@@ -76,8 +74,7 @@ public class TablaSimbolos {
         Atributos a = tablaActual.get(lexema);
         if (a != null) {a.añadir(atributo, valor);}
         else {System.err.println("Se esta intentando agregar atributos a una variable que no existe");}
-
-        if(atributo.equals("desplazamiento") && zona_declaracion){ posTS = Integer.parseInt(valor); }
+        if(atributo.equals("desplazamiento") && !zonaFuncion){ posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
     }
 
     public String getTipo(String id) {
