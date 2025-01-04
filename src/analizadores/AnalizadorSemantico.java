@@ -152,16 +152,10 @@ public class AnalizadorSemantico {
             case "RETURN":
                 String tipo =  tablaS.getTipoRetorno();
 
-               if(tipo == null){
-                    error("Error al hacer return, no esta dentro de una funcion");
-                }
-                else if(tipo.equals("void")){
-                    error("Error en return, return dentro de una funcion void");
-                }
+               if(tipo.isEmpty()){error("Error al hacer return, no hay funciones definidas");}
+                else if(tipo.equals("void")){ error("Error, return dentro de una funcion void");}
                 else if(!eTipo.equals(tipo)){
-                    error("Error en return, el valor devuelto de return no coincide con el tipo de retorno de la funcion");
-                }
-
+                    error("Error en return, el valor devuelto de return no coincide con el tipo de retorno de la funcion");}
                 break;
             case"WHILE":
                 if(!eTipo.equals(sTipo)){
@@ -191,8 +185,8 @@ public class AnalizadorSemantico {
         if(lexema.equals("cad")) {return "String";}
         else if(lexema.equals("cte")) {return "int";}
         else {
-           String t =  tablaS.getTipo(lexema);
-           if(t != null){
+            String t =  tablaS.getTipo(lexema);
+           if(!t.isEmpty()){
                res = t;
            }
         }
@@ -228,13 +222,7 @@ public class AnalizadorSemantico {
                 break;
         }
     }
-    public void finSemantico(){
-        tablaS.imprimirTablaS();
-    }
-    public String getLexema(){
-        return Lexema;
-    }
-    public void setLexema(String uVariable) {
-        this.Lexema = uVariable;
-    }
+    public void finSemantico(){ tablaS.imprimirTablaS(); }
+    public String getLexema(){ return Lexema; }
+    public void setLexema(String uVariable) { this.Lexema = uVariable; }
 }
