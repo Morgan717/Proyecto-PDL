@@ -1,38 +1,39 @@
-package analizador;
+package analizadores;
 
-import ClasesAuxiliares.TablaSimbolos;
+import clasesAux.GestorErrores;
+import tablaS.TablaSimbolos;
 
 import java.io.*;
 
 public class AnalizadorLexico {
 
-    private int i = 5;// para ayudar al ir probando diferentes entradas
 
-    private File entrada;
+    private GestorErrores gestorE;
+    private AnalizadorSemantico semantico;
+    private TablaSimbolos tabla;
     private int numeroLineaEntrada;// vamos aumentando segun el numero de lines del fichero entrada
     private int asciicActual;
     private char cActual;// caracter actual manejado
+
+    private File entrada;
     private BufferedReader lectura;// scanner para ir leyendo
 
     private File salidaToken;
     private FileWriter escrituraToken;// objeto escritura para cada archivo
-    private File salidaTablaS;
-    private TablaSimbolos tabla;
-    private File salidaErrores;
-    private FileWriter escrituraErrores;
 
-    public AnalizadorLexico(File entCodigo, File salidaTok, File salidaTS, File salidaErr, TablaSimbolos tabla) {
+    public AnalizadorLexico(File entCodigo, File salidaTok,GestorErrores gestorE,AnalizadorSemantico semantico, TablaSimbolos t) {
         numeroLineaEntrada = 1;
+        this.gestorE= gestorE;
+        this.semantico= semantico;
+        this.tabla = t;
+        gestorE.setLinea(numeroLineaEntrada);
         try {
             // aqui hay que poner las rutas exactas de donde estan los ficheros
             this.entrada = entCodigo;
             this.salidaToken = salidaTok;
-            this.salidaTablaS = salidaTS;
-            this.salidaErrores = salidaErr;
             this.lectura = new BufferedReader(new FileReader(entrada));
             this.escrituraToken = new FileWriter(salidaToken);
-            this.escrituraErrores = new FileWriter(salidaErrores);
-            escrituraToken.write(""); escrituraErrores.write("");
+            escrituraToken.write("");
             // vaciamos los archivos
         } catch (NullPointerException e) {
             throw new RuntimeException(e);
@@ -40,14 +41,16 @@ public class AnalizadorLexico {
             throw new RuntimeException(e);
         }
         // iniciamos la tabla de simbolos global
-        this.tabla = tabla;
 
 
+    }
+    private void error(String mensaje){
+        gestorE.error("Lexico",mensaje);
     }
 
     private boolean avanzar() {
         boolean res = true;
-        if (cActual == '\n') numeroLineaEntrada++;
+        if (cActual == '\n') gestorE.setLinea(++numeroLineaEntrada);
         try {
             asciicActual = lectura.read();
         } catch (IOException e) {
@@ -80,11 +83,12 @@ public class AnalizadorLexico {
                 if (!correcto) {
                     lectura.reset();// volvemos hasta el ultimo * leido mandamos error
                     numeroLineaEntrada = auxLinea;
-                    escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; no se ha cerrado el comentario */ correctamente\n");
-                    numeroLineaEntrada--;
+                    gestorE.setLinea(numeroLineaEntrada);
+                    error("No se ha cerrado bien el comentario");
+                    gestorE.setLinea(++numeroLineaEntrada);
                 }
             } else
-                escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; '" + lexema + "' token no reconocido");
+                error("Caracter no reconocido: "+lexema);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -141,9 +145,6 @@ public class AnalizadorLexico {
 
     }
 
-public int lineaActual (){
-        return numeroLineaEntrada;
-}
     public String obtenerToken() {
 
         if (!avanzar()) {
@@ -226,7 +227,7 @@ public int lineaActual (){
                         return "&&";
                     }
                     else {
-                        escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; todo '&' va seguido de otro\n");
+                        error("Los '&&' siempre van dos seguidos falta uno");
                         lectura.reset();
                         return "&";
                     }
@@ -262,7 +263,7 @@ public int lineaActual (){
                         return "%=";
                     }
                     else {
-                        escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; caracter incorrecto a continuación del %\n");
+                        error("Caracter incorrecto a continuación del %");
                         lectura.reset();
                     }
                 } catch (IOException e) {
@@ -292,8 +293,9 @@ public int lineaActual (){
                     if (error) {
                         lectura.reset();
                         numeroLineaEntrada = aux2Linea;
-                        escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; no se ha cerrado la cadena de caracteres\n");
-                        numeroLineaEntrada--;
+                        gestorE.setLinea(numeroLineaEntrada);
+                        error("No se ha cerrado la cadena de caracteres");
+                        gestorE.setLinea(--numeroLineaEntrada);
                     } else {
                         escrituraToken.write("<Cad,'" + res1 + "'>\n");
                         return "CAD";
@@ -330,13 +332,14 @@ public int lineaActual (){
                             String pr = palabraReservada(lexema);
 
                             if (pr.isEmpty()) {
-                                //int pos = tabla.añadir(lexema);
-                                escrituraToken.write("<id," + 0 + ">\n");
+                                semantico.setLexema(lexema);
+                                int pos = tabla.añadir(lexema);
+                                escrituraToken.write("<id," + pos + ">\n");
                                 return "id";
                             }
                             else return pr;
                         } else
-                            escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; '" + lexema + "' longitud del string por encima del limite de 64 \n");
+                            error("Longitud de cadena alfanumerica por encima del maximo de 64");
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -368,16 +371,12 @@ public int lineaActual (){
                             return "cte";
                         }
                         else
-                            escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; '" + entero + "' entero superior al limite de 32767\n");
+                            error("Entero superior al limite de 32767");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    try {
-                        escrituraErrores.write("Unexpected token, line:" + numeroLineaEntrada + "; token:'" + cActual + "' no reconocido\n");
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                        error("Caracter no reconocido: "+cActual);
                 }
         }
         // si llegamos aqui es por que no hemos reconocido el token por lo que avanzamos y mandamos el siguiente token
@@ -387,10 +386,8 @@ public int lineaActual (){
     public void finLexico(){
         try {
             escrituraToken.flush();
-            escrituraErrores.flush();
             escrituraToken.close();
-            escrituraErrores.close();
-            lectura.close();
+             lectura.close();
         } catch (IOException e) {
             e.printStackTrace();
 
