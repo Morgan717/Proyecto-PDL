@@ -264,8 +264,8 @@ public class AnalizadorSintactico {
         try {
             if (tokenSig.equals("id")) {
                 salida.write("21 ");
-                equipara("id");
                 pos.setTokenSig(semantico.getLexema());
+                equipara("id");
             } else if (tokenSig.equals("cte")) {
                 salida.write("22 ");
                 equipara("cte");
@@ -362,7 +362,7 @@ public class AnalizadorSintactico {
             throw new RuntimeException(e);
         }
         // token actual = output
-        pos.setTokenActual(tokenActual);
+        pos.setTokenActual("saltar");
         pos.setProduccion("OUTPUT");
         EXP();
 
@@ -374,11 +374,11 @@ public class AnalizadorSintactico {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        equipara ("id");
+        pos.setTokenActual("saltar");
         pos.setProduccion("INPUT");
         pos.setTokenSig(tokenActual);
         semantico.procesar();
-
+        equipara ("id");
     }
 
     private void RETURN_STMT() {
@@ -444,9 +444,9 @@ public class AnalizadorSintactico {
                 salida.write("36 ");
                 semantico.setN_param(1);
                 pos.setTokenActual(TIPO());// token actual = int;...
-                equipara("id");//en semantico lexema ya esta actualizado
                 pos.setProduccion("PARAMS");
                 semantico.procesar();
+                equipara("id");//en semantico lexema ya esta actualizado
                 PARAMSX();
             }
             else if(tokenSig.equals("eof")){
@@ -468,9 +468,9 @@ public class AnalizadorSintactico {
                 semantico.setN_param(semantico.getN_param()+1);
                 equipara(",");
                 pos.setTokenActual(TIPO());// token actual = int;...
-                equipara("id");//en semantico lexema ya esta actualizado
                 pos.setProduccion("PARAMS");
                 semantico.procesar();
+                equipara("id");//en semantico lexema ya esta actualizado
                 PARAMSX();
             }
             else if(tokenSig.equals("eof")){

@@ -95,12 +95,14 @@ public class AnalizadorSemantico {
 
     private void parametros(){
         int tam = datos(pos.getTokenActual());
-        // token actual = id
-        // lexema = nombre id
         if(tam !=  -1) {
-            tablaS.agregarParam( "tipo",n_param);
+            tablaS.agregarParam(Lexema,pos.getTokenActual() ,n_param);
+            tablaS.agregarAtributo(Lexema,"desplazamiento",String.valueOf(tablaS.getDespLocal()));
+            tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());
+            tablaS.setDespLocal(tablaS.getDespLocal() + tam);
         }
     }
+
     private int datos(String tipo){
         switch (tipo){
             case "int":
@@ -153,21 +155,26 @@ public class AnalizadorSemantico {
     }
 
     private String expresiones(String lexema){
+        if(lexema.equals("saltar")){return "";}
+        if(lexema.equals("id")){return "id";}
+        if(lexema.equals("=")){return "";}
+        if(lexema.equals("%=")){return "%=";}
         String res = "";
         if(!lexema.isEmpty()) {
             if (lexema.equals("cad")) {return "string"; }
             else if (lexema.equals("cte")) { return "int";}
 
             // tipo de un id
-            else if(!(lexema.equals("int")||lexema.equals("void")||lexema.equals("boolean")||lexema.equals("string"))){
-                String t = tablaS.getTipo(lexema);
-                if (!t.isEmpty()) {
-                    res = t;
-                } else {
-                    error("Uso de una variable no declarada");
-                    return "";
+                if(tablaS.declarado(lexema)) {
+                    String t = tablaS.getTipo(lexema);
+                    if (!t.isEmpty()) {
+                        res = t;
+                    } else {
+                        error("Uso de una variable no declarada");
+                        return "";
+                    }
                 }
-            }
+
             //se vuelve a comprobar
             if (res.equals("cad")) {res = "string";}
             else if (res.equals("cte")) {res = "int";}
