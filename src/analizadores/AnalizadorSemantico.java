@@ -10,6 +10,7 @@ public class AnalizadorSemantico {
     private TablaSimbolos tablaS;
     private String Lexema;
     private PosicionActual pos;
+    private int n_param;
 
 
     public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p) {
@@ -20,17 +21,21 @@ public class AnalizadorSemantico {
         tablaS.setZona_declaracion(true);// la zona de declaracion empieza en true
     }
     private void error(String mensaje){gestorE.error("Semantico",mensaje);}
-
+    public void setN_param(int i){n_param=i;}
+    public int getN_param(){return n_param;}
     // llamaos a procesar cuando emepzamos una produccion
     public void procesar() {
         switch (pos.getProduccion()) {
-            case "DECL": declaracion();
+
+            case "DECL": tablaS.setZona_declaracion(true); declaracion();
                 break;
-            case "FUNC": funcion();
+            case "FUNC":
+                tablaS.setZona_declaracion(true);
+                funcion();
                 break;
             case"PARAMS": parametros();
                 break;
-            case"ASIGN":
+            case"ASIGN": asignacion();
             case"WHILE":
             case "OUTPUT":
             case"INPUT":
@@ -42,7 +47,7 @@ public class AnalizadorSemantico {
             case"+":
             case"==":
             case"&&":
-                expresiones();
+                expresiones("");
                 break;
             default:
                 System.err.println("Se ha llamado al semantico con una produccion no reconocida");
@@ -50,10 +55,9 @@ public class AnalizadorSemantico {
     }
 
     private void funcion(){
-        tablaS.setZona_declaracion(true);
         tablaS.agregarAtributo(Lexema,"tipo","funcion");
         tablaS.agregarAtributo(Lexema,"tipo retorno",pos.getTokenActual());
-        tablaS.agregarAtributo(Lexema,"desplazamiento","0");
+        tablaS.agregarAtributo(Lexema,"desplazamiento",String.valueOf(tablaS.getDespLocal()));
         tablaS.crearTabla(Lexema);
     }
     public void fin_funcion(){
@@ -62,7 +66,6 @@ public class AnalizadorSemantico {
     }
 
     private void declaracion(){
-            tablaS.setZona_declaracion(true);
             int tam = datos(pos.getTokenActual());
             // token actual = id
             // lexema = nombre id
@@ -80,21 +83,29 @@ public class AnalizadorSemantico {
             }
     }
 
+    private void asignacion(){
+        //token actual = , %=
+        //token sig tipo
+        String eTipo = expresiones(pos.getTokenSig());
+        if(eTipo.isEmpty()){error("Error de asignacion"); return;}
+        else if(pos.getTokenActual().equals("%=") && !eTipo.equals("int")){
+            error("Error de asignacion %= no estas usando un entero ");
+        }
+    }
+
     private void parametros(){
         int tam = datos(pos.getTokenActual());
         // token actual = id
         // lexema = nombre id
         if(tam !=  -1) {
-            tablaS.agregarAtributo(Lexema, "tipo", pos.getTokenActual());
-            tablaS.agregarAtributo(Lexema, "desplazamiento", Integer.toString(tablaS.getDespLocal()));
-            tablaS.setDespLocal(tablaS.getDespLocal() + tam);
+            tablaS.agregarParam( "tipo",n_param);
         }
     }
     private int datos(String tipo){
         switch (tipo){
             case "int":
                 return 4;
-            case"bool":
+            case"boolean":
                 return 1;
             case "void":
                 return 0;
@@ -110,8 +121,8 @@ public class AnalizadorSemantico {
         // token sig = lexema o cte o cad
         String s = pos.getTokenActual();// nombre var 1
         String e = pos.getTokenSig();// nombre var 2
-        String sTipo = tipo(s);
-        String eTipo = tipo(e);
+        String sTipo = expresiones(s);
+        String eTipo = expresiones(e);
         switch (pos.getProduccion()) {
             case"ASIGN":
                 if(!eTipo.equals(sTipo)){error("Error al asignar: se esta itentando asignar un "+ eTipo+" a una varible tipo: "+sTipo);}
@@ -141,54 +152,58 @@ public class AnalizadorSemantico {
         }
     }
 
-
-
-    private String tipo(String lexema){
+    private String expresiones(String lexema){
         String res = "";
-        if(lexema.equals("cad")) {return "String";}
-        else if(lexema.equals("cte")) {return "int";}
-        else {
-            String t =  tablaS.getTipo(lexema);
-           if(!t.isEmpty()){
-               res = t;
-           }
-           else{
-               error("Uso de una variable no declarada");
-               return "";
-           }
+        if(!lexema.isEmpty()) {
+            if (lexema.equals("cad")) {return "string"; }
+            else if (lexema.equals("cte")) { return "int";}
+
+            // tipo de un id
+            else if(!(lexema.equals("int")||lexema.equals("void")||lexema.equals("boolean")||lexema.equals("string"))){
+                String t = tablaS.getTipo(lexema);
+                if (!t.isEmpty()) {
+                    res = t;
+                } else {
+                    error("Uso de una variable no declarada");
+                    return "";
+                }
+            }
+            //se vuelve a comprobar
+            if (res.equals("cad")) {res = "string";}
+            else if (res.equals("cte")) {res = "int";}
+            return res;
         }
-        // para funciones se vuelve a comprobar
-        if(res.equals("cad")){ res = "string";}
-        else if(res.equals("cte")){res = "int";}
-        else if(res.equals("bool")){ res ="boolean";}
-        return res;
-    }
-    private void expresiones(){
         String s = pos.getTokenActual();
         String e = pos.getTokenSig();
-        String sTipo = tipo(s);
-        String eTipo = tipo(e);
+        String sTipo = expresiones(s);
+        String eTipo = expresiones(e);
         switch(pos.getProduccion()){
             case"+":
                 if(!eTipo.equals(sTipo)){
                     error("error de expresion no puede sumar tipos de datos distintos");
+                    return "";
                 } else if (eTipo.equals("boolean")) {
                     error("erro de expresion no puedes sumar booleanos");
+                    return "";
                 }
-                break;
+                return "int";
             case"==":
                 if(!eTipo.equals(sTipo)){
                     error("error de expresion no puede comparar tipos de datos distintos");
+                    return "";
                 }
-                break;
+                return "boolean";
             case"&&":
                 if(!eTipo.equals(sTipo)){
                     error("error de expresion no puede comparar tipos de datos distintos");
+                    return "";
                 } else if (!eTipo.equals("boolean")) {
                     error("erro de expresion no puedes comparar datos que no sean booleanos");
+                    return "";
                 }
-                break;
+                return "boolean";
         }
+        return res;
     }
     public void finSemantico(){ tablaS.imprimirTablaS(); }
     public String getLexema(){ return Lexema; }

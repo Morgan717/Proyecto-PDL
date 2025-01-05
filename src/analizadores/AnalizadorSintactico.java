@@ -156,9 +156,9 @@ public class AnalizadorSintactico {
             // token actual = var
             salida.write("11 ");
             pos.setTokenActual(TIPO());// token actual = int;...
-            equipara("id");//en semantico lexema ya esta actualizado
             pos.setProduccion("DECL");
             semantico.procesar();
+            equipara("id");//en semantico lexema ya esta actualizado
             DECLX();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -188,13 +188,13 @@ public class AnalizadorSintactico {
             if (tokenSig.equals("%=")) {
                 salida.write("14 ");
                 // token actual = id
-                pos.setTokenActual(semantico.getLexema());// nombre del lexema
+                pos.setTokenActual("%=");// nombre del lexema
                 avanzar();
                 EXP();
             } else if (tokenSig.equals("=")) {
                 salida.write("15 ");
                 // token actual = id
-                pos.setTokenActual(semantico.getLexema());// nombre del lexema
+                pos.setTokenActual("=");// nombre del lexema
                 avanzar();
                 EXP();
             }else if(tokenSig.equals("eof")){
@@ -304,6 +304,7 @@ public class AnalizadorSintactico {
     private void IF_STMT() {
         try {
             salida.write("25 ");
+            pos.setTokenActual("");
             pos.setProduccion("IF");
             equipara("(");
             EXP();
@@ -413,9 +414,9 @@ public class AnalizadorSintactico {
             if(tokenSig.equals("int")||tokenSig.equals("string")||
                     tokenSig.equals("boolean")||tokenSig.equals("void")) {
                 pos.setTokenActual(TIPOX()); // metemos el tipo de funcion
-                equipara("id"); // lexema ya actualizado en semantico
                 pos.setProduccion("FUNC");
                 semantico.procesar();// procesamos la funcion
+                equipara("id"); // lexema ya actualizado en semantico
                 equipara("(");
                 PARAMS();
                 equipara(")");
@@ -441,6 +442,7 @@ public class AnalizadorSintactico {
 
             if (tokenSig.equals("int") || tokenSig.equals("string") || tokenSig.equals("boolean") || tokenSig.equals("void")) {
                 salida.write("36 ");
+                semantico.setN_param(1);
                 pos.setTokenActual(TIPO());// token actual = int;...
                 equipara("id");//en semantico lexema ya esta actualizado
                 pos.setProduccion("PARAMS");
@@ -463,6 +465,7 @@ public class AnalizadorSintactico {
         try {
             if(tokenSig.equals(",")) {
                 salida.write("38 ");
+                semantico.setN_param(semantico.getN_param()+1);
                 equipara(",");
                 pos.setTokenActual(TIPO());// token actual = int;...
                 equipara("id");//en semantico lexema ya esta actualizado

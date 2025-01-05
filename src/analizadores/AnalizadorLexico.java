@@ -304,8 +304,8 @@ public class AnalizadorLexico {
                             String pr = palabraReservada(lexema);
 
                             if (pr.isEmpty()) {
-                                semantico.setLexema(lexema);
                                 int pos = tabla.añadir(lexema);
+                                semantico.setLexema(lexema);
                                 escrituraToken.write("<id," + pos + ">\n");
                                 return "id";
                             }

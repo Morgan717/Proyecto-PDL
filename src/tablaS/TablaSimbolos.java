@@ -65,7 +65,9 @@ public class TablaSimbolos {
                 encontrado = true;
             }
         }
-        if (!encontrado){res = posTS;}// si no se ha encontrado o no tiene desplazamiento
+        if (!encontrado){
+            tablaActual.put(lexema,new Atributos());
+            res = posTS;}// si no se ha encontrado o no tiene desplazamiento
         return res;
     }
 
@@ -73,9 +75,25 @@ public class TablaSimbolos {
         // añadimos atributo a la tabla actual al lexema concreto
         Atributos a = tablaActual.get(lexema);
         if (a != null) {a.añadir(atributo, valor);}
-        else {System.err.println("Se esta intentando agregar atributos a una variable que no existe");}
-        if(atributo.equals("desplazamiento") && !zonaFuncion){ posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
+        else {System.err.println("TablaSimbolos, linea: 78 error; Se esta intentando agregar atributos a una variable que no existe;");}
+        if(atributo.equals("desplazamiento") && !zonaFuncion){
+            posTS = Integer.parseInt(valor); despLocal+=Integer.parseInt(valor);}// si estamos en una funcion no avanzamos la pos
     }
+
+    public void agregarParam(String tipo, int n) {
+        // añadimos parametros a la funcion actual
+        if(!zonaFuncion){System.err.println("TablaSimbolos, linea: 85 error; Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
+        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 86 error; Se esta intentadno añadir parametros sin niguna funcion definida");return;}
+        String ultimaFuncion="";
+        for (String key : pilaTFun.keySet()) {ultimaFuncion = key;} // La última iteración tendrá la última clave
+        Atributos a = tablaG.get(ultimaFuncion);
+        if (a != null) {
+            a.añadir("numParam",String.valueOf(n));
+            a.añadir("TipoParam"+n ,tipo);
+        }
+        else {System.err.println("TablaSimbolos, linea: 94 error; Se esta intentando agregar atributos a una variable que no existe");}
+    }
+
 
     public String getTipo(String id) {
         String res = "";
@@ -86,18 +104,15 @@ public class TablaSimbolos {
                 encontrado= true;
             }
         }
-        if(!encontrado){System.err.println("Se esta intentando buscar el tipo de un id que no existe");}
+        if(!encontrado){System.err.println("TablaSimbolos, linea: 107 error; Se esta intentando buscar el tipo de un id que no existe");}
         return res;
     }
     public  String getTipoRetorno(){
-        String res ="";
-        if(pilaTFun.isEmpty()){
-            System.err.println("Se esta intentando de hacer un return sin niguna funcion definida");
-            return "";
-        }
+        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 111 error; Se esta intentando de hacer un return sin niguna funcion definida");return "";}
         String ultimaFuncion="";
-        for (String key : pilaTFun.keySet()) { ultimaFuncion = key;} // La última iteración tendrá la última clave
-        res = tablaG.get(ultimaFuncion).getTipoRetorno();
+        for (String key : pilaTFun.keySet()) {ultimaFuncion = key;}
+        if(ultimaFuncion.isEmpty()){ System.err.println("TablaSimbolos, linea: 114 error; Error al acceder a la ultima funcion en tipoRetorno"); return "";}
+        String res = tablaG.get(ultimaFuncion).getTipoRetorno();
         return res;
     }
 

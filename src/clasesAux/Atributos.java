@@ -16,7 +16,8 @@ public class Atributos {
                 return true;
             }
         }
-        return false;}
+        return false;
+    }
 
     public String getTipo(){
         String res = "";
@@ -27,7 +28,7 @@ public class Atributos {
                 encontrado= true;
             }
         }
-        if(!encontrado){System.err.println("Se esta intentando buscar el atributo tipo sin que haya sido añadido");}
+        if(!encontrado){System.err.println("Atributos, linea: 30 error;Se esta intentando buscar el atributo tipo sin que haya sido añadido");}
         return res;}
 
     public String getTipoRetorno(){
@@ -39,7 +40,7 @@ public class Atributos {
                 encontrado= true;
             }
         }
-        if(!encontrado){System.err.println("Se esta intentando buscar el atributo tipo retorno sin que haya sido añadido");}
+        if(!encontrado){System.err.println("Atributos, linea: 42 error;Se esta intentando buscar el atributo tipo retorno sin que haya sido añadido");}
         return res;}
 
     public int getDesp(){
@@ -52,7 +53,7 @@ public class Atributos {
                 encontrado = true;
             }
         }
-        if(!encontrado){System.err.println("Se esta intentando buscar el atributo desp sin que haya sido añadido");}
+        if(!encontrado){System.err.println("Atributos, linea: 55 error;Se esta intentando buscar el atributo desp sin que haya sido añadido");}
         return res;
     }
 
