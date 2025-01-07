@@ -40,7 +40,10 @@ public class TablaSimbolos {
     public void setDespLocal(int i ) { despLocal= i; }
     public boolean isZona_declaracion() { return zona_declaracion; }
     public void setZona_declaracion(boolean zona_declaracion) { this.zona_declaracion = zona_declaracion; }
-    public boolean declarado(String lexema){return tablaActual.containsKey(lexema);}
+    public boolean declarado(String lexema){
+        if(!tablaActual.containsKey(lexema)) return false;
+        else return tablaActual.get(lexema) != null;
+    }
 
     public void crearTabla(String nombre) {
         despGlobal= despLocal;
@@ -69,26 +72,25 @@ public class TablaSimbolos {
 
         if (!encontrado){
             if (!tablaActual.containsKey(lexema)) {
-                tablaActual.put(lexema, new Atributos());
+                tablaActual.put(lexema, null);
             }
             res = posTS;
         }// si no se ha encontrado o no tiene desplazamiento
         return res;
     }
-
     public void agregarAtributo(String lexema, String atributo, String valor) {
         // añadimos atributo a la tabla actual al lexema concreto
+        tablaActual.computeIfAbsent(lexema, k -> new Atributos());// si no se ha declarado creamos atributos
         Atributos a = tablaActual.get(lexema);
         if (a != null) {a.añadir(atributo, valor);}
         else {System.err.println("TablaSimbolos, linea: 83 error; Se esta intentando agregar atributos a una variable que no existe;");}
         if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
 
     }
-
     public void agregarParam(String nombre,String tipo, int n) {
         // añadimos parametros a la funcion actual
-        if(!zonaFuncion){System.err.println("TablaSimbolos, linea: 90 error; Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 91 error; Se esta intentadno añadir parametros sin niguna funcion definida");return;}
+        if(!zonaFuncion){System.err.println("TablaSimbolos, linea: 92 error; Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
+        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 93 error; Se esta intentadno añadir parametros sin niguna funcion definida");return;}
         String ultimaFuncion="";
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;} // La última iteración tendrá la última clave
         Atributos a = tablaG.get(ultimaFuncion);
@@ -96,10 +98,8 @@ public class TablaSimbolos {
             a.añadir("numParam",String.valueOf(n));
             a.añadir("TipoParam"+n ,tipo);
         }
-        else {System.err.println("TablaSimbolos, linea: 99 error; Se esta intentando agregar atributos a una variable que no existe");}
+        else {System.err.println("TablaSimbolos, linea: 101 error; Se esta intentando agregar atributos a una variable que no existe");}
     }
-
-
     public String getTipo(String id) {
         String res = "";
         boolean encontrado= false;
@@ -120,37 +120,63 @@ public class TablaSimbolos {
         String res = tablaG.get(ultimaFuncion).getTipoRetorno();
         return res;
     }
-
+    public  String getValor(String id){
+        String res = "";
+        boolean encontrado= false;
+        for(String clave: tablaActual.keySet()){
+            if(clave.equals(id)){
+                res = tablaActual.get(clave).getTipo();
+                encontrado= true;
+            }
+        }
+        if(!encontrado){System.err.println("TablaSimbolos, linea: 132 error; Se esta intentando buscar el valor del id: "+ id + " que no existe");}
+        return res;
+    }
 
 
     public void imprimirTablaS() {
         try {
+            // Contador para las tablas
+            int contadorFuncion = 2;
             // Imprimir la tabla principal
             escritura.write("TABLA PRINCIPAL #1:\n");
             for (Map.Entry<String, Atributos> entrada : tablaActual.entrySet()) {
                 escritura.write("* LEXEMA : '" + entrada.getKey() + "'\n");
-                escritura.write(entrada.getValue().imprimirAtributos());
+                if(entrada.getValue()== null){
+                    escritura.write(("\tATRIBUTOS :\n"));
+                }
+                else {
+                    escritura.write(entrada.getValue().imprimirAtributos());
+                }
                 escritura.write("\n");
 
+                // Si el lexema es una función, imprimir su tabla de símbolos
+                if (pilaTFun.containsKey(entrada.getKey())) {
+                    imprimirFunc(entrada.getKey(), contadorFuncion);
+                    contadorFuncion++; // Incrementar el contador después de imprimir
+                }
             }
+            escritura.flush();
+            escritura.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-            // Imprimir las tablas de funciones
-            int contadorFuncion = 2;
-            for (Map.Entry<String, LinkedHashMap<String, Atributos>> funcion : pilaTFun.entrySet()) {
-                escritura.write("TABLA de la FUNCION " + funcion.getKey() + " #" + contadorFuncion + ":\n");
-                for (Map.Entry<String, Atributos> entrada : funcion.getValue().entrySet()) {
+    private void imprimirFunc(String funcion, int contador) {
+        try {
+            LinkedHashMap<String, Atributos> tablaFuncion = pilaTFun.get(funcion);
+            if (tablaFuncion != null) {
+                escritura.write("---------------------------------------------------\n");
+                escritura.write("TABLA de la FUNCION " + funcion + " #" + contador + ":\n");
+                for (Map.Entry<String, Atributos> entrada : tablaFuncion.entrySet()) {
                     escritura.write("* LEXEMA: '" + entrada.getKey() + "' \n");
                     escritura.write(entrada.getValue().imprimirAtributos());
                 }
                 escritura.write("---------------------------------------------------\n");
-                contadorFuncion++;
             }
-            escritura.flush();
-            escritura.close();
-        } catch (IOException e) { e.printStackTrace();}
-    }
-
-    private void imprimirFunc(){
-
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

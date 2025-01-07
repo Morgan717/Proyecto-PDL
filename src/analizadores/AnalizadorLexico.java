@@ -135,6 +135,12 @@ public class AnalizadorLexico {
                 case"else":
                     escrituraToken.write("<ELSE,>\n");
                     return "else";
+                case"true":
+                        escrituraToken.write("<BOOL,true>\n");
+                    return "true";
+                case"false":
+                    escrituraToken.write("<BOOL,false>\n");
+                    return "true";
                 default:
                     return "";
             }
@@ -270,7 +276,8 @@ public class AnalizadorLexico {
                         gestorE.setLinea(--numeroLineaEntrada);
                     } else {
                         escrituraToken.write("<Cad,'" + res1 + "'>\n");
-                        return "CAD";
+                        semantico.setCadena(res1);
+                        return "cad";
                     }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -340,6 +347,7 @@ public class AnalizadorLexico {
 
                         if (entero <= 32767) {
                             escrituraToken.write("<Cte," + entero + ">\n");// falta la pos en la tabla de simbolos
+                            semantico.setCte(entero);
                             return "cte";
                         }
                         else

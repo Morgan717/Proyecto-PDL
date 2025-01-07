@@ -46,15 +46,21 @@ public class AnalizadorSintactico {
         if (tokenSig.equals(token)) {
             avanzar();
         }else if(tokenActual == "id"){
-                error("Error sintatico, valor no esperado: "+ tokenSig + " detras  de variable ");
+                 // este caso en concreto para dar una mas exacta salida de error
+                error("Valor no esperado: "+ tokenSig + " detras  de variable ");
+                avanzar();
+                tokenActual  = token;// marcamos como error pero corregimos para poder seguir analizando de forma correcta
         }
         else if(tokenSig.equals("eof")){
             error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             finSintactico();
             System.exit(1);
         }else {
-            error("Error al equiparar se esperaba " + token + ", encontrado " + tokenSig);
+            error("Se esperaba " + token + ", encontrado " + tokenSig);
+            avanzar();
+            tokenActual  = token;// marcamos como error pero corregimos para poder seguir analizando de forma correcta
         }
+
     }
 
     private void error(String mensaje) {
@@ -96,6 +102,9 @@ public class AnalizadorSintactico {
             }
             else{
                 error("Error al principio de linea se ha encontrado un valor no esperado: "+ tokenActual);
+                avanzar();
+                START();
+                // seguimos analizando
             }
         }catch(IOException e){
             throw new RuntimeException(e);
@@ -145,6 +154,8 @@ public class AnalizadorSintactico {
                     break;
                 default:
                     error("Error en el segundo elemento valor no esperado: "+ tokenActual);
+                    avanzar();
+                    START();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -174,8 +185,14 @@ public class AnalizadorSintactico {
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();
-            }else {
+
+            }else if (tokenSig.equals(";")){
                 salida.write("13 "); // sin asignación
+            }
+            else{
+                error("Declaracion mal hecha");
+                avanzar();
+                START();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -184,17 +201,16 @@ public class AnalizadorSintactico {
 
     private void ASIGN() {
         try {
-            pos.setProduccion("ASIGN");
             if (tokenSig.equals("%=")) {
                 salida.write("14 ");
                 // token actual = id
-                pos.setTokenActual("%=");// nombre del lexema
+                pos.setProduccion("%=");// nombre del lexema
                 avanzar();
                 EXP();
             } else if (tokenSig.equals("=")) {
                 salida.write("15 ");
                 // token actual = id
-                pos.setTokenActual("=");// nombre del lexema
+                pos.setProduccion("=");// nombre del lexema
                 avanzar();
                 EXP();
             }else if(tokenSig.equals("eof")){
@@ -203,6 +219,8 @@ public class AnalizadorSintactico {
                 System.exit(1);
             } else {
                 error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
+                avanzar();
+                START();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -221,7 +239,8 @@ public class AnalizadorSintactico {
                 semantico.procesar();
             }
             // token actual = + , &&, o ==
-            pos.setTokenActual(tokenActual);
+            if(tokenActual.equals("id")) pos.setTokenActual(semantico.getLexema());
+            else pos.setTokenActual(tokenActual);
             EXPX();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -275,6 +294,16 @@ public class AnalizadorSintactico {
                 equipara("cad");
                 pos.setTokenSig("cad");
             }
+            else if(tokenSig.equals("true")){
+                salida.write("24 ");
+                equipara("true");
+                pos.setTokenSig("true");
+            }
+            else if(tokenSig.equals("false")){
+                salida.write("25 ");
+                equipara("false");
+                pos.setTokenSig("false");
+            }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();
@@ -307,6 +336,7 @@ public class AnalizadorSintactico {
             pos.setTokenActual("");
             pos.setProduccion("IF");
             equipara("(");
+            pos.setTokenActual(tokenSig);
             EXP();
             equipara(")");
             equipara("{");
@@ -392,6 +422,7 @@ public class AnalizadorSintactico {
     private void RETURN_STMTX(){
         try{
             if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
+                if(tokenSig.equals("id"))  pos.setTokenActual(semantico.getLexema());
                 salida.write("33 ");
                 pos.setProduccion("RETURN");
                 EXP();

@@ -9,6 +9,8 @@ public class AnalizadorSemantico {
     private GestorErrores gestorE;
     private TablaSimbolos tablaS;
     private String Lexema;
+    private int cte;
+    private String cadena;
     private PosicionActual pos;
     private int n_param;
 
@@ -23,11 +25,18 @@ public class AnalizadorSemantico {
     private void error(String mensaje){gestorE.error("Semantico",mensaje);}
     public void setN_param(int i){n_param=i;}
     public int getN_param(){return n_param;}
+    public void setCte(int i){cte = i;}
+    public int getCte(){return cte;}
+    public void setCadena(String s){cadena = s;}
+    public String getCadena(){return cadena;}
     // llamaos a procesar cuando emepzamos una produccion
     public void procesar() {
         switch (pos.getProduccion()) {
 
-            case "DECL": tablaS.setZona_declaracion(true); declaracion();
+            case "DECL":
+                tablaS.setZona_declaracion(true);
+                declaracion();
+                tablaS.setZona_declaracion(false);
                 break;
             case "FUNC":
                 tablaS.setZona_declaracion(true);
@@ -35,7 +44,9 @@ public class AnalizadorSemantico {
                 break;
             case"PARAMS": parametros();
                 break;
-            case"ASIGN": asignacion();
+            case"%=":
+            case"=":
+                asignacion();
             case"WHILE":
             case "OUTPUT":
             case"INPUT":
@@ -70,7 +81,7 @@ public class AnalizadorSemantico {
             // token actual = id
             // lexema = nombre id
             if(tam ==  -1){
-                System.err.println("En el semantico hemos intentado encontrar el tamño de un tipo de variable mal");
+                System.err.println("En el semantico hemos intentado encontrar el tamaño de un tipo de variable mal");
                 return;
             }
             if(tablaS.declarado(Lexema)){
@@ -83,20 +94,25 @@ public class AnalizadorSemantico {
             }
     }
 
-    private void asignacion(){
+    private void asignacion() {
         //token actual = , %=
         //token sig tipo
-        String eTipo = expresiones(pos.getTokenSig());
-        if(eTipo.isEmpty()){error("Error de asignacion"); return;}
-        else if(pos.getTokenActual().equals("%=") && !eTipo.equals("int")){
-            error("Error de asignacion %= no estas usando un entero ");
+        String sTipo = expresiones(pos.getTokenSig());
+        if (sTipo.isEmpty()) {
+            error("Error de asignacion");
+        } else if (pos.getProduccion().equals("%=")) {
+            if (!sTipo.equals("int")) {
+                error("Error de asignacion %= no estas usando un entero ");
+            }
         }
     }
+
 
     private void parametros(){
         int tam = datos(pos.getTokenActual());
         if(tam !=  -1) {
             tablaS.agregarParam(Lexema,pos.getTokenActual() ,n_param);
+            tablaS.agregarAtributo(Lexema,"param",String.valueOf(n_param));
             tablaS.agregarAtributo(Lexema,"desplazamiento",String.valueOf(tablaS.getDespLocal()));
             tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());
             tablaS.setDespLocal(tablaS.getDespLocal() + tam);
@@ -126,15 +142,14 @@ public class AnalizadorSemantico {
         String sTipo = expresiones(s);
         String eTipo = expresiones(e);
         switch (pos.getProduccion()) {
-            case"ASIGN":
-                if(!eTipo.equals(sTipo)){error("Error al asignar: se esta itentando asignar un "+ eTipo+" a una varible tipo: "+sTipo);}
-                else if(eTipo.isEmpty()){error("tipo de variable no reconocida al asignar");}
+            case "=": case"%=":
+                asignacion();
                 break;
             case "OUTPUT":
                 if(eTipo.isEmpty()){error("Error en output, no puedes hacer un output con" +eTipo);}
                 break;
             case"INPUT":
-                if(!e.equals("id")){error("Error en input, no puedes hacer un input con" +eTipo);}
+                if(!e.equals("id")){error("Error en input, no puedes hacer un input con" + eTipo);}
                 break;
             case "RETURN":
                 String tipo =  tablaS.getTipoRetorno();
@@ -156,14 +171,14 @@ public class AnalizadorSemantico {
 
     private String expresiones(String lexema){
         if(lexema.equals("saltar")){return "";}
-        if(lexema.equals("id")){return "id";}
+        if(lexema.equals("id")){return "";}
         if(lexema.equals("=")){return "";}
         if(lexema.equals("%=")){return "%=";}
+        if(lexema.equals("true")||lexema.equals("false")){return"boolean";}
         String res = "";
         if(!lexema.isEmpty()) {
             if (lexema.equals("cad")) {return "string"; }
             else if (lexema.equals("cte")) { return "int";}
-
             // tipo de un id
                 if(tablaS.declarado(lexema)) {
                     String t = tablaS.getTipo(lexema);
@@ -176,8 +191,8 @@ public class AnalizadorSemantico {
                 }
 
             //se vuelve a comprobar
-            if (res.equals("cad")) {res = "string";}
-            else if (res.equals("cte")) {res = "int";}
+            if (res.equals("cad")) {return "string";}
+            else if (res.equals("cte")) {return "int";}
             return res;
         }
         String s = pos.getTokenActual();
