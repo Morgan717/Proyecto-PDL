@@ -89,7 +89,7 @@ public class AnalizadorSemantico {
             }
             else{
                 tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());
-                tablaS.agregarAtributo(Lexema,"desplazamiento", Integer.toString(tablaS.getDespLocal()));
+                tablaS.agregarAtributo(Lexema,"desplazamiento", String.valueOf(tablaS.getDespLocal()));
                 tablaS.setDespLocal(tablaS.getDespLocal() + tam);
             }
     }
@@ -122,13 +122,13 @@ public class AnalizadorSemantico {
     private int datos(String tipo){
         switch (tipo){
             case "int":
-                return 4;
+                return 2;
             case"boolean":
                 return 1;
             case "void":
                 return 0;
             case"string":
-                return 64;
+                return 4;
             default:
                 error("tipo no reconocido");
                 return -1;

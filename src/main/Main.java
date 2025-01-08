@@ -14,7 +14,7 @@ public class Main {
 
         public static void main(String[] args) {
             File salidaToken, salidaTablaS, salidaErrores, salidaParse, entrada;
-            int i = 10;
+            int i = 7;
 
             String path ="C:\\y todo\\UPM\\Tercero\\5o cuatri\\PDL\\practica\\pruebas\\";
 
