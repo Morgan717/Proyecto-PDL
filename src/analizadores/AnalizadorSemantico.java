@@ -128,7 +128,7 @@ public class AnalizadorSemantico {
             case "void":
                 return 0;
             case"string":
-                return 4;
+                return 3;
             default:
                 error("tipo no reconocido");
                 return -1;
