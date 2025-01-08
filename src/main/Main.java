@@ -14,7 +14,7 @@ public class Main {
 
         public static void main(String[] args) {
             File salidaToken, salidaTablaS, salidaErrores, salidaParse, entrada;
-            int i = 7;
+            int i = 10;
 
                 try {
                     //aqui hay que poner las rutas exactas de donde estan los ficherosç

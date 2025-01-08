@@ -336,7 +336,6 @@ public class AnalizadorSintactico {
             pos.setTokenActual("");
             pos.setProduccion("IF");
             equipara("(");
-            pos.setTokenActual(tokenSig);
             EXP();
             equipara(")");
             equipara("{");
@@ -406,7 +405,7 @@ public class AnalizadorSintactico {
         }
         pos.setTokenActual("saltar");
         pos.setProduccion("INPUT");
-        pos.setTokenSig(tokenActual);
+        pos.setTokenSig(tokenSig);
         semantico.procesar();
         equipara ("id");
     }

@@ -41,7 +41,8 @@ public class TablaSimbolos {
     public boolean isZona_declaracion() { return zona_declaracion; }
     public void setZona_declaracion(boolean zona_declaracion) { this.zona_declaracion = zona_declaracion; }
     public boolean declarado(String lexema){
-        if(!tablaActual.containsKey(lexema)) return false;
+        if(!tablaActual.containsKey(lexema) && !tablaG.containsKey(lexema)) return false;
+        else if(tablaG.containsKey(lexema)) return tablaG.get(lexema) != null;
         else return tablaActual.get(lexema) != null;
     }
 
@@ -62,35 +63,43 @@ public class TablaSimbolos {
             //añadir por parte del lexico
         int res = posTS;
         boolean encontrado = false;
-        for(String clave: tablaActual.keySet() ){
-            if(lexema.equals(clave)){
-                res = tablaActual.get(clave).getDesp();
-                encontrado = true;
-                break;
+            for (String clave : tablaActual.keySet()) {
+                if (lexema.equals(clave)) {
+                    res = tablaActual.get(clave).getDesp();
+                    encontrado = true;
+                    break;
+                }
             }
-        }
 
         if (!encontrado){
-            if (!tablaActual.containsKey(lexema)) {
-                tablaActual.put(lexema, null);
+
+            for (String clave : tablaG.keySet()) {
+                if (lexema.equals(clave)) {
+                    res = tablaG.get(clave).getDesp();
+                    encontrado = true;
+                    break;
+                }
             }
-            res = posTS;
+            if(!encontrado && !tablaActual.containsKey(lexema)) {
+                    tablaActual.put(lexema, null);
+                    res = ++posTS;
+            }
+
         }// si no se ha encontrado o no tiene desplazamiento
         return res;
     }
     public void agregarAtributo(String lexema, String atributo, String valor) {
         // añadimos atributo a la tabla actual al lexema concreto
-        tablaActual.computeIfAbsent(lexema, k -> new Atributos());// si no se ha declarado creamos atributos
-        Atributos a = tablaActual.get(lexema);
-        if (a != null) {a.añadir(atributo, valor);}
-        else {System.err.println("TablaSimbolos, linea: 83 error; Se esta intentando agregar atributos a una variable que no existe;");}
-        if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
-
+        if(!declarado(lexema))
+            tablaActual.put(lexema, new Atributos());
+            Atributos a = tablaActual.get(lexema);
+            a.añadir(atributo, valor);
+            if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
     }
     public void agregarParam(String nombre,String tipo, int n) {
         // añadimos parametros a la funcion actual
-        if(!zonaFuncion){System.err.println("TablaSimbolos, linea: 92 error; Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 93 error; Se esta intentadno añadir parametros sin niguna funcion definida");return;}
+        if(!zonaFuncion){System.err.println("TablaSimbolos,  Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
+        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,  Se esta intentadno añadir parametros sin niguna funcion definida");return;}
         String ultimaFuncion="";
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;} // La última iteración tendrá la última clave
         Atributos a = tablaG.get(ultimaFuncion);
@@ -98,7 +107,7 @@ public class TablaSimbolos {
             a.añadir("numParam",String.valueOf(n));
             a.añadir("TipoParam"+n ,tipo);
         }
-        else {System.err.println("TablaSimbolos, linea: 101 error; Se esta intentando agregar atributos a una variable que no existe");}
+        else {System.err.println("TablaSimbolos,Se esta intentando agregar atributos a una variable que no existe");}
     }
     public String getTipo(String id) {
         String res = "";
@@ -109,27 +118,23 @@ public class TablaSimbolos {
                 encontrado= true;
             }
         }
-        if(!encontrado){System.err.println("TablaSimbolos, linea: 112 error; Se esta intentando buscar el tipo del id: "+ id + " que no existe");}
+        if(!encontrado) {
+            for (String clave2 : tablaG.keySet()) {
+                if (clave2.equals(id)) {
+                    res = tablaG.get(clave2).getTipo();
+                    encontrado = true;
+                }
+            }
+        }
+        if(!encontrado) System.err.println("TablaSimbolos, Se esta intentando buscar el tipo del id: "+ id + " que no existe");
         return res;
     }
     public  String getTipoRetorno(){
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos, linea: 116 error; Se esta intentando de hacer un return sin niguna funcion definida");return "";}
+        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,Se esta intentando de hacer un return sin niguna funcion definida");return "";}
         String ultimaFuncion="";
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;}
-        if(ultimaFuncion.isEmpty()){ System.err.println("TablaSimbolos, linea: 119 error; Error al acceder a la ultima funcion en tipoRetorno"); return "";}
+        if(ultimaFuncion.isEmpty()){ System.err.println("TablaSimbolos, Error al acceder a la ultima funcion en tipoRetorno"); return "";}
         String res = tablaG.get(ultimaFuncion).getTipoRetorno();
-        return res;
-    }
-    public  String getValor(String id){
-        String res = "";
-        boolean encontrado= false;
-        for(String clave: tablaActual.keySet()){
-            if(clave.equals(id)){
-                res = tablaActual.get(clave).getTipo();
-                encontrado= true;
-            }
-        }
-        if(!encontrado){System.err.println("TablaSimbolos, linea: 132 error; Se esta intentando buscar el valor del id: "+ id + " que no existe");}
         return res;
     }
 
@@ -171,7 +176,12 @@ public class TablaSimbolos {
                 escritura.write("TABLA de la FUNCION " + funcion + " #" + contador + ":\n");
                 for (Map.Entry<String, Atributos> entrada : tablaFuncion.entrySet()) {
                     escritura.write("* LEXEMA: '" + entrada.getKey() + "' \n");
-                    escritura.write(entrada.getValue().imprimirAtributos());
+                    if(entrada.getValue()== null){
+                        escritura.write(("\tATRIBUTOS :\n"));
+                    }
+                    else {
+                        escritura.write(entrada.getValue().imprimirAtributos());
+                    }
                 }
                 escritura.write("---------------------------------------------------\n");
             }

@@ -172,9 +172,8 @@ public class AnalizadorSemantico {
     private String expresiones(String lexema){
         if(lexema.equals("saltar")){return "";}
         if(lexema.equals("id")){return "";}
-        if(lexema.equals("=")){return "";}
-        if(lexema.equals("%=")){return "%=";}
-        if(lexema.equals("true")||lexema.equals("false")){return"boolean";}
+        if(lexema.equals("=") || lexema.equals("%=") ){return "";}
+        if(lexema.equals("true")||lexema.equals("false") || lexema.equals("boolean") ){return"boolean";}
         String res = "";
         if(!lexema.isEmpty()) {
             if (lexema.equals("cad")) {return "string"; }
@@ -182,13 +181,9 @@ public class AnalizadorSemantico {
             // tipo de un id
                 if(tablaS.declarado(lexema)) {
                     String t = tablaS.getTipo(lexema);
-                    if (!t.isEmpty()) {
-                        res = t;
-                    } else {
-                        error("Uso de una variable no declarada");
-                        return "";
+                    if (!t.isEmpty()) { res = t;} }
+                else { error("Uso de una variable no declarada");   return "";
                     }
-                }
 
             //se vuelve a comprobar
             if (res.equals("cad")) {return "string";}
