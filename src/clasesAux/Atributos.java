@@ -9,7 +9,7 @@ public class Atributos {
     private LinkedHashMap<String, String> atributos; // Atributos del identificador
 
     public Atributos() {this.atributos = new LinkedHashMap<>(); }
-    public void añadir(String nombreAtributo, String valor) {atributos.put(nombreAtributo, valor);}
+    public void add(String nombreAtributo, String valor) {atributos.put(nombreAtributo, valor);}
     public boolean declarado(){return !atributos.isEmpty();}
     public String getTipo(){
         String res = "";

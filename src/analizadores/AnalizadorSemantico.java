@@ -81,7 +81,7 @@ public class AnalizadorSemantico {
             // token actual = id
             // lexema = nombre id
             if(tam ==  -1){
-                System.err.println("En el semantico hemos intentado encontrar el tamaño de un tipo de variable mal");
+                System.err.println("En el semantico hemos intentado encontrar el tamano de un tipo de variable mal");
                 return;
             }
             if(tablaS.declarado(Lexema)){

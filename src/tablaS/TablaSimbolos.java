@@ -59,8 +59,8 @@ public class TablaSimbolos {
         zonaFuncion=false;
     }
 
-    public int añadir(String lexema){
-            //añadir por parte del lexico
+    public int add(String lexema){
+            //anadir por parte del lexico
         int res = posTS;
         boolean encontrado = false;
             for (String clave : tablaActual.keySet()) {
@@ -89,11 +89,10 @@ public class TablaSimbolos {
         return res;
     }
     public void agregarAtributo(String lexema, String atributo, String valor) {
-        // añadimos atributo a la tabla actual al lexema concreto
-        if(!declarado(lexema))
-            tablaActual.put(lexema, new Atributos());
+        // anadimos atributo a la tabla actual al lexema concreto
+        if(!declarado(lexema)) {tablaActual.put(lexema, new Atributos());}
             Atributos a = tablaActual.get(lexema);
-            a.añadir(atributo, valor);
+            a.add(atributo, valor);
             if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
     }
     public void agregarParam(String nombre,String tipo, int n) {
@@ -104,8 +103,8 @@ public class TablaSimbolos {
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;} // La última iteración tendrá la última clave
         Atributos a = tablaG.get(ultimaFuncion);
         if (a != null) {
-            a.añadir("numParam",String.valueOf(n));
-            a.añadir("TipoParam"+n ,tipo);
+            a.add("numParam",String.valueOf(n));
+            a.add("TipoParam"+n ,tipo);
         }
         else {System.err.println("TablaSimbolos,Se esta intentando agregar atributos a una variable que no existe");}
     }

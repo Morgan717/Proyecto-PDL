@@ -294,16 +294,6 @@ public class AnalizadorSintactico {
                 equipara("cad");
                 pos.setTokenSig("cad");
             }
-            else if(tokenSig.equals("true")){
-                salida.write("24 ");
-                equipara("true");
-                pos.setTokenSig("true");
-            }
-            else if(tokenSig.equals("false")){
-                salida.write("25 ");
-                equipara("false");
-                pos.setTokenSig("false");
-            }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();

@@ -14,22 +14,27 @@ public class Main {
 
         public static void main(String[] args) {
             File salidaToken, salidaTablaS, salidaErrores, salidaParse, entrada;
-            int i = 7;
 
-            String path ="C:\\y todo\\UPM\\Tercero\\5o cuatri\\PDL\\practica\\pruebas\\";
+            // la carpeta desde donde se ejecuta el .exe
+            String basePath = System.getProperty("user.dir");
+            // Crear carpeta "pruebas" si no existe
+            File pruebasDir = new File(basePath + "/pruebas");
+            if (!pruebasDir.exists()) { pruebasDir.mkdirs();}
+            int i = 0;// diferentes ficheros
 
-                try {
-                    //aqui hay que poner las rutas exactas de donde estan los ficherosç
-                    salidaToken = new File(path+"salida_tokens\\salidaToken" + i + ".txt");
-                    salidaTablaS = new File(path+"salida_TS\\salidaTablaS" + i + ".txt");
-                    salidaParse = new File(path+"salida_parse\\salidaParse" + i + ".txt");
-                    entrada = new File(path+"entrada_codigo\\entrada" + i + ".txt");
-                    salidaErrores = new File(path+"salida_errores\\errores" + i + ".txt");
-                } catch (NullPointerException e) {
-                    throw new RuntimeException(e);
-                }
+            try {
+                // Crear archivos directamente en la carpeta actual
+                entrada = new File(pruebasDir, "entrada" + i + ".txt");
+                salidaToken = new File(pruebasDir, "salidaToken" + i + ".txt");
+                salidaTablaS = new File(pruebasDir, "salidaTablaS" + i + ".txt");
+                salidaParse = new File(pruebasDir, "salidaParse" + i + ".txt");
+                salidaErrores = new File(pruebasDir, "errores" + i + ".txt");
+            } catch (NullPointerException e) {
+                throw new RuntimeException(e);
+            }
 
-                PosicionActual p = new PosicionActual();
+
+            PosicionActual p = new PosicionActual();
                 GestorErrores gestor = new GestorErrores(salidaErrores);
                 TablaSimbolos tabla = new TablaSimbolos(salidaTablaS,gestor);
                 AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p);
