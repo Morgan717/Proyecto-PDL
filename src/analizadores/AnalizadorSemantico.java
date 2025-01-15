@@ -1,21 +1,26 @@
 package analizadores;
 
 import clasesAux.GestorErrores;
+import clasesAux.PilaSemaforos;
 import clasesAux.PosicionActual;
 import tablaS.TablaSimbolos;
 
+import java.util.concurrent.Semaphore;
+
 public class AnalizadorSemantico {
 
+    private boolean returnHecho;
+    private PilaSemaforos semaforo;
     private GestorErrores gestorE;
     private TablaSimbolos tablaS;
     private String Lexema;
-    private int cte;
-    private String cadena;
     private PosicionActual pos;
     private int n_param;
 
 
-    public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p) {
+    public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p,PilaSemaforos s) {
+        returnHecho = false;
+        this.semaforo = s;
         this.gestorE= gestor;
         this.tablaS = tablaS;
         this.pos = p; //comunicacion con el sintactico
@@ -25,12 +30,9 @@ public class AnalizadorSemantico {
     private void error(String mensaje){gestorE.error("Semantico",mensaje);}
     public void setN_param(int i){n_param=i;}
     public int getN_param(){return n_param;}
-    public void setCte(int i){cte = i;}
-    public int getCte(){return cte;}
-    public void setCadena(String s){cadena = s;}
-    public String getCadena(){return cadena;}
+
     // llamaos a procesar cuando emepzamos una produccion
-    public void procesar() {
+    public void procesar() throws InterruptedException {
         switch (pos.getProduccion()) {
 
             case "DECL":
@@ -41,12 +43,10 @@ public class AnalizadorSemantico {
             case "FUNC":
                 tablaS.setZona_declaracion(true);
                 funcion();
+                tablaS.setZona_declaracion(false);
                 break;
-            case"PARAMS": parametros();
-                break;
-            case"%=":
-            case"=":
-                asignacion();
+            case"PARAMS": parametros();break;
+            case "ASIGN":
             case"WHILE":
             case "OUTPUT":
             case"INPUT":
@@ -54,32 +54,32 @@ public class AnalizadorSemantico {
             case"IF":
                 sentencias();
                 break;
-            case"EXPX":
-            case"+":
-            case"==":
-            case"&&":
-                expresiones("");
+            case"EXP":
+                expresiones();
                 break;
             default:
                 System.err.println("Se ha llamado al semantico con una produccion no reconocida");
         }
     }
 
-    private void funcion(){
+    private void funcion() throws InterruptedException {
+        returnHecho= false;
+        String nombre = Lexema;
         tablaS.agregarAtributo(Lexema,"tipo","funcion");
         tablaS.agregarAtributo(Lexema,"tipo retorno",pos.getTokenActual());
         tablaS.agregarAtributo(Lexema,"desplazamiento",String.valueOf(tablaS.getDespLocal()));
         tablaS.crearTabla(Lexema);
-    }
-    public void fin_funcion(){
-        tablaS.setZona_declaracion(false);
+        semaforo.acquire();// necesitamos esperar a que termine para terminar
+        if(!returnHecho && !tablaS.getTipo(Lexema).equals("void")){error("No se ha hehco return en la funcion "+nombre);}
         tablaS.liberarTabla();
+        returnHecho = false;
     }
 
-    private void declaracion(){
+    private void declaracion() throws InterruptedException {
+        // token actual  string boolean int
+        // tokenSig   =  %=  ;
+            String Ttipo = pos.getTokenActual();
             int tam = datos(pos.getTokenActual());
-            // token actual = id
-            // lexema = nombre id
             if(tam ==  -1){
                 System.err.println("En el semantico hemos intentado encontrar el tamano de un tipo de variable mal");
                 return;
@@ -92,19 +92,43 @@ public class AnalizadorSemantico {
                 tablaS.agregarAtributo(Lexema,"desplazamiento", String.valueOf(tablaS.getDespLocal()));
                 tablaS.setDespLocal(tablaS.getDespLocal() + tam);
             }
+            semaforo.acquire();
+           if(pos.getTokenSig().equals("=")||pos.getTokenSig().equals("%=")){
+               // token actual  id
+               // tokenSig   =  %=  ;
+               if(!Ttipo.equals("int")&& pos.getTokenSig().equals("%=")){
+                   error("error de declaracion no puedes hacer asignacion con resto a una variable no entera");
+                   return;
+               }
+                String Atipo =  asignacion();
+               if(Atipo.equals("error")){return;}
+               else if(!Ttipo.equals(Atipo) && !Atipo.equals("lambda")){
+                    error("Error en la declaracion mal puesto el tipo de variable con el contenido");}
+                    }
     }
 
-    private void asignacion() {
-        //token actual = , %=
-        //token sig tipo
-        String sTipo = expresiones(pos.getTokenSig());
-        if (sTipo.isEmpty()) {
-            error("Error de asignacion");
-        } else if (pos.getProduccion().equals("%=")) {
-            if (!sTipo.equals("int")) {
-                error("Error de asignacion %= no estas usando un entero ");
+    private String asignacion() throws InterruptedException {
+        // token actual  id
+        // tokenSig  =  %=  ;
+        String siguiente;
+        if(pos.getTokenSig().equals("=")){
+            semaforo.acquire();
+            // token actual =
+            // token sig    cte cad id
+            siguiente = expresiones();
+            return siguiente;
+        }
+        else if(pos.getTokenSig().equals("%=")){
+            semaforo.acquire();
+            // token actual %=
+            // token sig    cte cad id
+            siguiente = expresiones();
+            if(!siguiente.equals("int")){
+                error("Asignacion con resto %= se ha usado sin enteros");
+                return "error";
             }
         }
+        return "lambda";
     }
 
 
@@ -134,95 +158,138 @@ public class AnalizadorSemantico {
                 return -1;
         }
     }
-    private void sentencias(){
-        // token actual = lexema;
-        // token sig = lexema o cte o cad
-        String s = pos.getTokenActual();// nombre var 1
-        String e = pos.getTokenSig();// nombre var 2
-        String sTipo = expresiones(s);
-        String eTipo = expresiones(e);
-        switch (pos.getProduccion()) {
-            case "=": case"%=":
-                asignacion();
-                break;
-            case "OUTPUT":
-                if(eTipo.isEmpty()){error("Error en output, no puedes hacer un output con" +eTipo);}
-                break;
-            case"INPUT":
-                if(!e.equals("id")){error("Error en input, no puedes hacer un input con" + eTipo);}
-                break;
-            case "RETURN":
-                String tipo =  tablaS.getTipoRetorno();
-               if(tipo.isEmpty()){error("Error al hacer return, no hay funciones definidas");}
-                else if(tipo.equals("void")){ error("Error, return dentro de una funcion void");}
-                else if(!eTipo.equals(tipo)){
-                    error("Error en return, el valor devuelto de return no coincide con el tipo de retorno de la funcion");}
-                break;
-            case"WHILE":
-                if(sTipo.equals("+")){error("Condicion del while no booleana");}
-                break;
-            case"IF":
-                if(sTipo.equals("+")){error("Condicion del if no booleana");}
-                break;
-            default:
-                error("Sentencia incorrecta");
+    private String sentencias() throws InterruptedException {
+        // token actual id while if output input return
+        // token sig %= = (
+        String Stipo = expresiones(pos.getTokenActual()); // si es ( no hace nah
+        semaforo.acquire();
+        // token actual %= =
+        // token sig  cte cad id
+        String Etipo;
+        switch(pos.getTokenActual()){
+            case "=": case "%=":
+                Etipo = expresiones(pos.getTokenSig());
+                if(!Stipo.equals(Etipo)){error("Error de asignacion diferentes tipos"); return "error";}
+                else return "ok";
+            case"while":
+                if(Stipo.isEmpty()){
+                    semaforo.acquire();
+                    // tokenActual cte cad id
+                    // tokensig + && ==
+                    Etipo = expresiones();
+                    if(Etipo.equals("error")){return "error";};
+                    if(!Etipo.equals("boolean")){error("Condicion del while no booleana"); return "error";};
+                    return "ok";
+                }
+                return "ok";
+            case"if":
+                if(Stipo.isEmpty()){
+                    semaforo.acquire();
+                    // tokenActual cte cad id
+                    // tokensig + && ==
+                    Etipo = expresiones();
+                    if(Etipo.equals("error")){ return "error";};
+                    if(!Etipo.equals("boolean")){error("Condicion del if no booleana"); return "error";};
+                    return "ok";
+                }
+            case"ouput":
+                // token actual output
+                // token sig id cte cad
+                semaforo.acquire();
+                // token actual + && ==
+                // token sig id cte cad
+                Etipo = expresiones();
+                if (Etipo.equals("error")){ return "error";}
+                return "ok";
+            case"input":
+                semaforo.acquire();
+                Etipo = expresiones("id");
+                return Etipo;
+
+            case"return":
+                // token actual return
+                // token sig id cte cad
+                Etipo = expresiones(pos.getTokenSig());
+                if(!Etipo.equals(tablaS.getTipoRetorno())){error("Tipo de retorno mal"); return "error";}
+                returnHecho = true;
+                return Etipo;
+            default: return "error";
         }
+
     }
-
-    private String expresiones(String lexema){
-        if(lexema.equals("saltar")){return "";}
-        if(lexema.equals("id")){return "";}
-        if(lexema.equals("=") || lexema.equals("%=") ){return "";}
-        if(lexema.equals("true")||lexema.equals("false") || lexema.equals("boolean") ){return"boolean";}
-        String res = "";
-        if(!lexema.isEmpty()) {
-            if (lexema.equals("cad")) {return "string"; }
-            else if (lexema.equals("cte")) { return "int";}
-            // tipo de un id
-                if(tablaS.declarado(lexema)) {
-                    String t = tablaS.getTipo(lexema);
-                    if (!t.isEmpty()) { res = t;} }
-                else { error("Uso de una variable no declarada");   return "";
-                    }
-
-            //se vuelve a comprobar
-            if (res.equals("cad")) {return "string";}
-            else if (res.equals("cte")) {return "int";}
-            return res;
-        }
-        String s = pos.getTokenActual();
-        String e = pos.getTokenSig();
-        String sTipo = expresiones(s);
-        String eTipo = expresiones(e);
-        switch(pos.getProduccion()){
+private String expresiones(String lexema){
+        // lexema cte cad id
+    switch (lexema) {
+        case "cad": return "string";
+        case "cte": return "int";
+        case "id":
+            String s = tablaS.getTipo(Lexema);
+            if (s.equals("funcion")) {
+                error("No se puede hacer una llamada a funcion");
+                return "error";
+            }
+            return s;
+        case "(": return "";
+        default: return "error";
+    }
+}
+    private String expresiones() throws InterruptedException {
+        // token actual cte cad id
+        // token sig + && == ;
+        String Stipo = expresiones(pos.getTokenActual());
+        if(Stipo .equals("error")){return "error";}
+        semaforo.acquire();
+        // token actual +
+        // token sig cte cad id
+        String Etipo = expresiones(pos.getTokenSig());
+        switch(pos.getTokenActual()){
+            case "=": case "%=":
+                if (pos.getTokenSig().equals("cte")){ return "int";}
+                else if(pos.getTokenSig().equals("cad")){ return "string";}
+                else if(pos.getTokenSig().equals("id")){return tablaS.getTipo(Lexema);}
+                else {
+                    error ("error de expresiones intentas hacer un igual con valores que no puedes");
+                    return "error";
+                }
             case"+":
-                if(!eTipo.equals(sTipo)){
-                    error("error de expresion no puede sumar tipos de datos distintos");
-                    return "";
-                } else if (eTipo.equals("boolean")) {
-                    error("erro de expresion no puedes sumar booleanos");
-                    return "";
+                if(Etipo.equals("error")){
+                    error("Error de en la expresion suma");
+                    return "error";
+                } else if (Etipo.equals("boolean")) {
+                    error("error de expresion no puedes sumar booleanos");
+                    return "error";
+                }else if(!Etipo.equals(Stipo)){
+                   error("error de expresion no puede sumar tipos de datos distintos");
+                    return "error";
                 }
                 return "int";
             case"==":
-                if(!eTipo.equals(sTipo)){
+                if(Etipo.equals("error")){
+                    error("Error de en la expresion comparador");
+                    return "error";
+                }else if(!Etipo.equals(Stipo)){
                     error("error de expresion no puede comparar tipos de datos distintos");
-                    return "";
+                    return "error";
                 }
                 return "boolean";
             case"&&":
-                if(!eTipo.equals(sTipo)){
+                if(Etipo.equals("error")){
+                    error("Error de en la expresion AND");
+                    return "";
+                } else if (!Etipo.equals("boolean")) {
+                    error("erro de expresion no puedes hacer && con datos que no sean booleanos");
+                    return "";
+                }else if(!Etipo.equals(Stipo)){
                     error("error de expresion no puede comparar tipos de datos distintos");
-                    return "";
-                } else if (!eTipo.equals("boolean")) {
-                    error("erro de expresion no puedes comparar datos que no sean booleanos");
-                    return "";
+                        return "error";
                 }
                 return "boolean";
+                case ";": return Stipo;
+            default:
+                return "error";
         }
-        return res;
     }
+
     public void finSemantico(){ tablaS.imprimirTablaS(); }
-    public String getLexema(){ return Lexema; }
     public void setLexema(String uVariable) { this.Lexema = uVariable; }
 }

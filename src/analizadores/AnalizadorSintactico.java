@@ -1,14 +1,17 @@
 package analizadores;
 
 import clasesAux.GestorErrores;
+import clasesAux.PilaSemaforos;
 import clasesAux.PosicionActual;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.concurrent.Semaphore;
 
 public class AnalizadorSintactico {
 
+    private PilaSemaforos semaforo;
     private String tokenActual;
     private String tokenSig;
 
@@ -20,7 +23,8 @@ public class AnalizadorSintactico {
     private File fichero;
     private FileWriter salida;
 
-    public AnalizadorSintactico(AnalizadorLexico lexico, File f, GestorErrores gestorE,AnalizadorSemantico semantico,PosicionActual p) {
+    public AnalizadorSintactico(AnalizadorLexico lexico, File f, GestorErrores gestorE,AnalizadorSemantico semantico,PosicionActual p,PilaSemaforos s) {
+        this.semaforo = s;
         this.lexico = lexico;
         this.gestorE=gestorE;
         this.semantico= semantico;
@@ -33,12 +37,14 @@ public class AnalizadorSintactico {
             throw new RuntimeException(e);
         }
     }
+    private void liberarSemaforo(){semaforo.release();}
 
     private void avanzar() {
         tokenActual = tokenSig;
-
+        pos.setTokenActual(tokenActual);
         if(!tokenActual.equals("eof")){
             tokenSig = lexico.obtenerToken();
+            pos.setTokenSig(tokenSig);
         }
     }
 
@@ -121,6 +127,7 @@ public class AnalizadorSintactico {
                     break;
                 case "id":
                     salida.write("5 ");
+                    pos.setProduccion("ASIGN");
                     ASIGN();
                     equipara(";");
                     break;
@@ -159,24 +166,38 @@ public class AnalizadorSintactico {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void DECL() {
+        // token actual   var
+        // token sig   string boolean int
         try {
-            // token actual = var
             salida.write("11 ");
-            pos.setTokenActual(TIPO());// token actual = int;...
             pos.setProduccion("DECL");
+            TIPO();
+            // token actual  string boolean int
+            // tokenSig   id
             semantico.procesar();
-            equipara("id");//en semantico lexema ya esta actualizado
+            equipara("id");//en semantico lexema ya esta
+            // token actual  id
+            // tokenSig   =  %=  ;
+            semaforo.release();
             DECLX();
+            // token actual  string boolean int
+            // tokenSig   =  %= ;
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void DECLX() {
+        // token actual  string boolean int
+        // tokenSig   =  %=  ;
         try {
             if (tokenSig.equals("=") || tokenSig.equals("%=")) {
                 salida.write("12 ");
@@ -196,31 +217,33 @@ public class AnalizadorSintactico {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private void ASIGN() {
+    private void ASIGN() throws InterruptedException {
+        // token actual  id
+        // token sig %= =
+        if(pos.getProduccion().equals("ASIGN")){
+            // si venimos del SEN y no de DECL
+            semantico.procesar();// procesamos con sentencias
+        }
         try {
             if (tokenSig.equals("%=")) {
                 salida.write("14 ");
-                // token actual = id
-                pos.setProduccion("%=");// nombre del lexema
                 avanzar();
+                // token actual %=
+                // token sig    cte cad id
+                semaforo.release();
                 EXP();
             } else if (tokenSig.equals("=")) {
                 salida.write("15 ");
-                // token actual = id
-                pos.setProduccion("=");// nombre del lexema
                 avanzar();
+                // token actual %=
+                // token sig    cte cad id
+                semaforo.release();
                 EXP();
-            }else if(tokenSig.equals("eof")){
-                error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
-            } else {
-                error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
-                avanzar();
-                START();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -229,76 +252,87 @@ public class AnalizadorSintactico {
 
 
     private void EXP() {
+        // tokenactual  %= = (  output  + && ==
+        // tokenSig  cte cad id
         try {
             salida.write("16 ");
-            // viniendo del while token actual = ?
-            // produccion = "WHILE"
             VAL();
-            if(!((pos.getProduccion().equals("IF") || pos.getProduccion().equals("WHILE")) && pos.getTokenActual().isEmpty())){
-                // esto quiere decir que estamos en la primera iteracion de el while o if a si que saltamos evitamos el procesar
-                semantico.procesar();
+            // tokenActual cte cad id
+            // tokensig + && == ;
+            if(pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("IF") || pos.getProduccion().equals("OUTPUT")){
+                semaforo.release();
             }
-            // token actual = + , &&, o ==
-            if(tokenActual.equals("id")) pos.setTokenActual(semantico.getLexema());
-            else pos.setTokenActual(tokenActual);
             EXPX();
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void EXPX() {
+        pos.setProduccion("EXP");
+        // token actual cte cad id
+        // token sig + && == ;
         try {
+            semantico.procesar();
             if (tokenSig.equals("+")) {
                 salida.write("17 ");
-                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("+");}
-                else{pos.setTokenActual(tokenSig);}// cambiamos el token para que se vea que ya hemos pasado primera iteracion del while
                 avanzar();
+                // token actual +
+                // token sig cte cad id
+                semaforo.release();
                 EXP();
             } else if (tokenSig.equals("&&")) {
                 salida.write("18 ");
-                // si no venimos de while cambiamos la produccion si no no
-                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("&&");}
-                else{pos.setTokenActual(tokenSig);}// cambiamos el token para que se vea que ya hemos pasado primera iteracion del while
                 avanzar();
+                // token actual &&
+                // token sig cte cad id
+                semaforo.release();
                 EXP();
             } else if (tokenSig.equals("==")) {
                 salida.write("19 ");
-                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("==");}
-                else{pos.setTokenActual(tokenSig);}
                 avanzar();
+                // token actual ==
+                // token sig cte cad id
+                semaforo.release();
                 EXP();
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();
                 System.exit(1);
-            }else salida.write("20 "); // solo VAL
-        } catch (IOException e) {
+
+            }else{
+                salida.write("20 ");} // solo VAL
+                // token actual id cte cad
+                // token sig ;
+                semaforo.release();
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void VAL() {
+        // tokenactual  %= = ( output + && ==
+        // tokenSig  cte cad id
         try {
             if (tokenSig.equals("id")) {
                 salida.write("21 ");
-                pos.setTokenSig(semantico.getLexema());
                 equipara("id");
+
             } else if (tokenSig.equals("cte")) {
                 salida.write("22 ");
                 equipara("cte");
-                pos.setTokenSig("cte");
+
             } else if (tokenSig.equals("cad")) {
                 salida.write("23 ");
                 equipara("cad");
-                pos.setTokenSig("cad");
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();
                 System.exit(1);
-            }else error("Error de variable, valor no esperado: " + tokenSig );
+            }else error("Error de variable, valor no esperado: " + tokenSig + " detras de: " + tokenActual );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -307,32 +341,42 @@ public class AnalizadorSintactico {
     private void WHILE_LOOP() {
         try {
             salida.write("24 ");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        pos.setTokenActual("");
-        pos.setProduccion("WHILE");
-        equipara("(");
-        EXP();
-        equipara(")");
-        equipara("{");
-        BODY();
-        equipara("}");
-    }
-
-    private void IF_STMT() {
-        try {
-            salida.write("25 ");
-            pos.setTokenActual("");
-            pos.setProduccion("IF");
+            // token actual while
+            // token sig (
+            pos.setProduccion("WHILE");
+            semantico.procesar();
             equipara("(");
+            // token actual (
+            // token sig cad cte id
             EXP();
             equipara(")");
             equipara("{");
             BODY();
             equipara("}");
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void IF_STMT() {
+        try {
+            salida.write("25 ");
+            // token actual if
+            // token sig (
+            pos.setProduccion("IF");
+            semantico.procesar();
+            equipara("(");
+            // token actual (
+            // token sig cad cte id
+            EXP();
+            equipara(")");
+            equipara("{");
+            BODY();
+            equipara("}");
+            // token actual }
+            // token sig else o.c
             IF_STMTX();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -375,29 +419,30 @@ public class AnalizadorSintactico {
         }
     }
     private void OUTPUT_STMT() {
+        // token actual output
+        // token sig id cte cad
         try {
             salida.write("30 ");
-        } catch (IOException e) {
+            pos.setProduccion("OUTPUT");
+            semantico.procesar();
+            EXP();
+        } catch (IOException | InterruptedException e ) {
             throw new RuntimeException(e);
         }
-        // token actual = output
-        pos.setTokenActual("saltar");
-        pos.setProduccion("OUTPUT");
-        EXP();
-
     }
 
-    private void INPUT_STMT() {
+    private void INPUT_STMT() throws InterruptedException {
+        // token actual input
+        // token sig id
         try {
             salida.write("31 ");
+            equipara ("id");
+            // token actual id
+            // token sig ;
+            semaforo.release();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        pos.setTokenActual("saltar");
-        pos.setProduccion("INPUT");
-        pos.setTokenSig(tokenSig);
-        semantico.procesar();
-        equipara ("id");
     }
 
     private void RETURN_STMT() {
@@ -410,20 +455,23 @@ public class AnalizadorSintactico {
     }
     private void RETURN_STMTX(){
         try{
-            if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
-                if(tokenSig.equals("id"))  pos.setTokenActual(semantico.getLexema());
-                salida.write("33 ");
-                pos.setProduccion("RETURN");
-                EXP();
-            }
-            else if(tokenSig.equals("eof")){
-                error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
-            }else {
-                salida.write("34 "); // solo return
-            }
-        } catch (IOException e) {
+            pos.setProduccion("RETURN");
+            // token actual return
+            // token sig id cte cad ;
+                semantico.procesar();
+                if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
+                    salida.write("33 ");
+                    pos.setProduccion("RETURN");
+                    EXP();
+                }
+                else if(tokenSig.equals("eof")){
+                    error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
+                    finSintactico();
+                    System.exit(1);
+                }else {
+                    salida.write("34 "); // solo return
+                }
+        } catch (IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -433,8 +481,10 @@ public class AnalizadorSintactico {
             salida.write("35 ");
             if(tokenSig.equals("int")||tokenSig.equals("string")||
                     tokenSig.equals("boolean")||tokenSig.equals("void")) {
-                pos.setTokenActual(TIPOX()); // metemos el tipo de funcion
+                TIPOX(); // metemos el tipo de funcion
                 pos.setProduccion("FUNC");
+                // token actual int boolean string void
+                // token sig id
                 semantico.procesar();// procesamos la funcion
                 equipara("id"); // lexema ya actualizado en semantico
                 equipara("(");
@@ -443,7 +493,7 @@ public class AnalizadorSintactico {
                 equipara("{");
                 BODY();
                 equipara("}");
-                semantico.fin_funcion();
+                semaforo.release();
             } else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                 finSintactico();
@@ -454,16 +504,19 @@ public class AnalizadorSintactico {
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 
     private void PARAMS() {
         try {
-
             if (tokenSig.equals("int") || tokenSig.equals("string") || tokenSig.equals("boolean") || tokenSig.equals("void")) {
                 salida.write("36 ");
                 semantico.setN_param(1);
-                pos.setTokenActual(TIPO());// token actual = int;...
+                TIPO();
+                // token actual  int string boolean
+                // token sig id
                 pos.setProduccion("PARAMS");
                 semantico.procesar();
                 equipara("id");//en semantico lexema ya esta actualizado
@@ -477,6 +530,8 @@ public class AnalizadorSintactico {
                 salida.write("37 "); // lambda
             }
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -502,6 +557,8 @@ public class AnalizadorSintactico {
             }
 
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }

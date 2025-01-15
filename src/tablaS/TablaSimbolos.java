@@ -35,7 +35,7 @@ public class TablaSimbolos {
         tablaActual = tablaG;
         this.pilaTFun = new LinkedHashMap<>();
     }
-
+    private void error(String mensaje){gestorE.error("Semantico",mensaje);}
     public int getDespLocal() { return despLocal; }
     public void setDespLocal(int i ) { despLocal= i; }
     public boolean isZona_declaracion() { return zona_declaracion; }
@@ -97,8 +97,8 @@ public class TablaSimbolos {
     }
     public void agregarParam(String nombre,String tipo, int n) {
         // añadimos parametros a la funcion actual
-        if(!zonaFuncion){System.err.println("TablaSimbolos,  Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,  Se esta intentadno añadir parametros sin niguna funcion definida");return;}
+        if(!zonaFuncion){error("Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
+        if(pilaTFun.isEmpty()){error("Se esta intentadno añadir parametros sin niguna funcion definida");return;}
         String ultimaFuncion="";
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;} // La última iteración tendrá la última clave
         Atributos a = tablaG.get(ultimaFuncion);
@@ -125,14 +125,37 @@ public class TablaSimbolos {
                 }
             }
         }
-        if(!encontrado) System.err.println("TablaSimbolos, Se esta intentando buscar el tipo del id: "+ id + " que no existe");
+
+        if(!encontrado){ error("Se esta intentando buscar el tipo del id: "+ id + " que no existe"); return "";}
+        return res;
+    }
+    public String getTipoRetorno(String id){
+        // retorno de la ultima funcion definida
+        if(pilaTFun.isEmpty()){error("Se esta intentando buscar el tipo de una funcion sin niguna funcion definida");return "";}
+        String res = "";
+        boolean encontrado= false;
+        for(String clave: tablaActual.keySet()){
+            if(clave.equals(id)){
+                res = tablaActual.get(clave).getTipoRetorno();
+                encontrado= true;
+            }
+        }
+        if(!encontrado) {
+            for (String clave2 : tablaG.keySet()) {
+                if (clave2.equals(id)) {
+                    res = tablaG.get(clave2).getTipoRetorno();
+                    encontrado = true;
+                }
+            }
+        }
+        if(!encontrado){ error(" Se esta intentando buscar el tipode retorno de la funcion: "+ id + " que no existe"); return "";}
         return res;
     }
     public  String getTipoRetorno(){
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,Se esta intentando de hacer un return sin niguna funcion definida");return "";}
+        if(pilaTFun.isEmpty()){error("Se esta intentando de hacer un return sin niguna funcion definida");return "";}
         String ultimaFuncion="";
         for (String key : pilaTFun.keySet()) {ultimaFuncion = key;}
-        if(ultimaFuncion.isEmpty()){ System.err.println("TablaSimbolos, Error al acceder a la ultima funcion en tipoRetorno"); return "";}
+        if(ultimaFuncion.isEmpty()){ error("Error al acceder a la ultima funcion en tipoRetorno"); return "";}
         String res = tablaG.get(ultimaFuncion).getTipoRetorno();
         return res;
     }

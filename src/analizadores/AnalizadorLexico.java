@@ -276,7 +276,6 @@ public class AnalizadorLexico {
                         gestorE.setLinea(--numeroLineaEntrada);
                     } else {
                         escrituraToken.write("<Cad,'" + res1 + "'>\n");
-                        semantico.setCadena(res1);
                         return "cad";
                     }
                 } catch (IOException e) {
@@ -347,7 +346,6 @@ public class AnalizadorLexico {
 
                         if (entero <= 32767) {
                             escrituraToken.write("<Cte," + entero + ">\n");// falta la pos en la tabla de simbolos
-                            semantico.setCte(entero);
                             return "cte";
                         }
                         else

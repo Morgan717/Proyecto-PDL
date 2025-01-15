@@ -2,12 +2,14 @@ package main;
 
 import analizadores.AnalizadorSemantico;
 import clasesAux.GestorErrores;
+import clasesAux.PilaSemaforos;
 import clasesAux.PosicionActual;
 import tablaS.TablaSimbolos;
 import analizadores.AnalizadorLexico;
 import analizadores.AnalizadorSintactico;
 
 import java.io.*;
+import java.util.concurrent.Semaphore;
 
 public class Main {
 
@@ -33,13 +35,13 @@ public class Main {
                 throw new RuntimeException(e);
             }
 
-
-            PosicionActual p = new PosicionActual();
+                PilaSemaforos semaforo = new PilaSemaforos(); // Semáforo compartido
+                PosicionActual p = new PosicionActual();
                 GestorErrores gestor = new GestorErrores(salidaErrores);
                 TablaSimbolos tabla = new TablaSimbolos(salidaTablaS,gestor);
-                AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p);
+                AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p , semaforo);
                 AnalizadorLexico aL = new AnalizadorLexico(entrada, salidaToken, gestor,semantico,tabla);
-                AnalizadorSintactico aS = new AnalizadorSintactico(aL, salidaParse, gestor,semantico,p);
+                AnalizadorSintactico aS = new AnalizadorSintactico(aL, salidaParse, gestor,semantico,p,semaforo);
                 aS.analizar();
 
         }
