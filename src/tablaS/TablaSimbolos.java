@@ -95,7 +95,7 @@ public class TablaSimbolos {
             a.add(atributo, valor);
             if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }// si estamos en una funcion no avanzamos la pos
     }
-    public void agregarParam(String nombre,String tipo, int n) {
+    public void agregarParam(String tipo, int n) {
         // añadimos parametros a la funcion actual
         if(!zonaFuncion){error("Se esta intentadno añadir parametros cuando no estamos en una funcion"); return;}
         if(pilaTFun.isEmpty()){error("Se esta intentadno añadir parametros sin niguna funcion definida");return;}
@@ -129,6 +129,7 @@ public class TablaSimbolos {
         if(!encontrado){ error("Se esta intentando buscar el tipo del id: "+ id + " que no existe"); return "";}
         return res;
     }
+
     public String getTipoRetorno(String id){
         // retorno de la ultima funcion definida
         if(pilaTFun.isEmpty()){error("Se esta intentando buscar el tipo de una funcion sin niguna funcion definida");return "";}

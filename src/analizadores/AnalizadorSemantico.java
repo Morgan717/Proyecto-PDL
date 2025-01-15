@@ -133,9 +133,11 @@ public class AnalizadorSemantico {
 
 
     private void parametros(){
+        // token actual tipo
+        // token sig nombre
         int tam = datos(pos.getTokenActual());
         if(tam !=  -1) {
-            tablaS.agregarParam(Lexema,pos.getTokenActual() ,n_param);
+            tablaS.agregarParam(pos.getTokenActual() ,n_param);
             tablaS.agregarAtributo(Lexema,"param",String.valueOf(n_param));
             tablaS.agregarAtributo(Lexema,"desplazamiento",String.valueOf(tablaS.getDespLocal()));
             tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());

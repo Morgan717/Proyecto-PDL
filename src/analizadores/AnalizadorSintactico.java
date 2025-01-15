@@ -542,7 +542,7 @@ public class AnalizadorSintactico {
                 salida.write("38 ");
                 semantico.setN_param(semantico.getN_param()+1);
                 equipara(",");
-                pos.setTokenActual(TIPO());// token actual = int;...
+                TIPO();// token actual = int;...
                 pos.setProduccion("PARAMS");
                 semantico.procesar();
                 equipara("id");//en semantico lexema ya esta actualizado
