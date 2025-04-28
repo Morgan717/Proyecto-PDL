@@ -22,14 +22,22 @@ public class AnalizadorSemantico {
         Lexema=""; // comunicacion con el lexico
         tablaS.setZona_declaracion(true);// la zona de declaracion empieza en true
     }
-    private void error(String mensaje){gestorE.error("Semantico",mensaje);}
+    private void error(String mensaje){
+        gestorE.error("Semantico",mensaje);
+        finSemantico();
+        System.exit(1);
+    }
     public void setN_param(int i){n_param=i;}
     public int getN_param(){return n_param;}
     public void setCte(int i){cte = i;}
     public int getCte(){return cte;}
     public void setCadena(String s){cadena = s;}
     public String getCadena(){return cadena;}
-    // llamaos a procesar cuando emepzamos una produccion
+    public String getLexema(){ return Lexema; }
+    public void setLexema(String s) { this.Lexema = s; }
+
+
+    // llamamos a procesar cuando emepzamos una produccion
     public void procesar() {
         switch (pos.getProduccion()) {
 
@@ -223,6 +231,5 @@ public class AnalizadorSemantico {
         return res;
     }
     public void finSemantico(){ tablaS.imprimirTablaS(); }
-    public String getLexema(){ return Lexema; }
-    public void setLexema(String uVariable) { this.Lexema = uVariable; }
+
 }

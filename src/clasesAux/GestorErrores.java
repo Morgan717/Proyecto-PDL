@@ -31,6 +31,7 @@ public class GestorErrores {
 
     public void finGestor(){
         try {
+            escrituraErrores.flush();
           escrituraErrores.close();
         } catch (IOException e) {
             throw new RuntimeException(e);

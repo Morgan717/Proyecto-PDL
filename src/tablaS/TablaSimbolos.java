@@ -107,6 +107,10 @@ public class TablaSimbolos {
             a.add("TipoParam"+n ,tipo);
         }
         else {System.err.println("TablaSimbolos,Se esta intentando agregar atributos a una variable que no existe");}
+
+        tablaActual.put(nombre,new Atributos());
+        tablaActual.get(nombre).add("tipo",tipo);
+        posTS++;
     }
     public String getTipo(String id) {
         String res = "";

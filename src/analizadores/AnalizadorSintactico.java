@@ -2,6 +2,7 @@ package analizadores;
 
 import clasesAux.GestorErrores;
 import clasesAux.PosicionActual;
+import tablaS.TablaSimbolos;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,15 +17,18 @@ public class AnalizadorSintactico {
     private GestorErrores gestorE;
     private AnalizadorLexico lexico;
     private AnalizadorSemantico semantico;
+    private TablaSimbolos tablaS;
 
     private File fichero;
     private FileWriter salida;
 
-    public AnalizadorSintactico(AnalizadorLexico lexico, File f, GestorErrores gestorE,AnalizadorSemantico semantico,PosicionActual p) {
+    public AnalizadorSintactico(AnalizadorLexico lexico, File f, GestorErrores gestorE,
+                                AnalizadorSemantico semantico, PosicionActual p, TablaSimbolos tablaS) {
         this.lexico = lexico;
         this.gestorE=gestorE;
         this.semantico= semantico;
         this.pos = p;
+        this.tablaS=tablaS;
         try {
             this.fichero = f;
             this.salida = new FileWriter(fichero);
@@ -121,7 +125,7 @@ public class AnalizadorSintactico {
                     break;
                 case "id":
                     salida.write("5 ");
-                    ASIGN();
+                    GESTOR();
                     equipara(";");
                     break;
                 case "while":
@@ -522,8 +526,6 @@ public class AnalizadorSintactico {
                     break;
                 case"eof":
                     error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                    finSintactico();
-                    System.exit(1);
                     break;
                 default:
                     error("error de tipo: tipo no reconocido");
@@ -553,8 +555,6 @@ public class AnalizadorSintactico {
                     break;
                 case"eof":
                     error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                    finSintactico();
-                    System.exit(1);
                     break;
                 default:
                     error("error de tipo: tipo no reconocido");
@@ -564,6 +564,53 @@ public class AnalizadorSintactico {
         }
         return tokenActual;
     }
+    private void GESTOR(){
+        try {
+            salida.write("47 ");
+            GESTORX();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void GESTORX(){
+        try {
+            if (tokenSig.equals("%=")||tokenSig.equals("=")) {
+                salida.write("48 ");
+                // token actual = id
+                ASIGN();
+            } else if (tokenSig.equals("(")) {
+                salida.write("49 ");
+                FUNC_CALL();
+            }else if(tokenSig.equals("eof")){
+                error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
+            } else {
+                error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void FUNC_CALL(){
+            //primero comprobamos si el id es una funcion
+            // en el semantico tenemos lexema que es el ultimoi ID leido
+        String s = semantico.getLexema();
+        if(!tablaS.declarado(s)){
+            error("Llamada a una funcion no declarada");
+        }
+        else{
+            try {
+                salida.write("50 ");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            equipara("id");
+            equipara("(");
+            PARAMS();
+            equipara(")");
+
+        }
+
+    }
 
     public void finSintactico(){
         try {
@@ -571,6 +618,7 @@ public class AnalizadorSintactico {
             salida.close();
             gestorE.finGestor();
             semantico.finSemantico();
+            lexico.finLexico();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

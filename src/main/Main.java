@@ -39,7 +39,7 @@ public class Main {
                 TablaSimbolos tabla = new TablaSimbolos(salidaTablaS,gestor);
                 AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p);
                 AnalizadorLexico aL = new AnalizadorLexico(entrada, salidaToken, gestor,semantico,tabla);
-                AnalizadorSintactico aS = new AnalizadorSintactico(aL, salidaParse, gestor,semantico,p);
+                AnalizadorSintactico aS = new AnalizadorSintactico(aL, salidaParse, gestor,semantico,p,tabla);
                 aS.analizar();
 
         }
