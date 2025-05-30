@@ -1,0 +1,118 @@
+### Producciones
+
+P'-> P P'| lambda
+P -> D P | S P | F P | lambda
+F -> T id ( L ) { P }
+D -> var T id A
+A -> = E | %= E lambda
+L -> T id | T id , L | lamda
+T -> int | bool | void | string 
+S -> id = E | id %= E | if ( E ) { S } B | while ( E ) { S } | return E | input id  | output E  | lambda
+E -> E + E | E == E | E && E | id | cte_ent | cte_str 
+B -> else { S } |lambda
+
+AXIOMA = P'
+
+#### Programa
+
+P'-> {TSG = CreaTabla(); desplG = 0;} P
+
+P -> {zona_decl := true; TSL = CreaTabla(); desplL= 0; in_funcion := true} F {TSL = LiberarTabla(); zona_decl := False; in_funcion:=false}  P
+  
+P -> {zona_decl := true;} D {zona_decl := false} P
+
+P -> S P
+
+P -> lambda
+
+#### Funciones
+
+F -> T  id {AñadeFuncTS(id.nombre, T.tipo, null);} ( {n_params := 1}  L  ) { P }
+
+#### Declaraciones
+
+D -> var T id { if (!ExisteEntradaTS(id.nombre)) {AñadeVarTS(id.nombre, T.tipo, in_funcion ? desplL : desplG); 
+			if (in_funcion) {desplL += T.tamaño; } else { desplG += T.tamaño; } } 
+		else { GenerarError("Duplicado"); } } 
+	if(sig_token == "%=" && T.tipo != entero){ error("error de declaracion no puedes hacer asignacion con resto a una variable no entera")
+	A {if (A.tipo == tipo_error){D.tipo= A.tipo}
+		else{ if(T.tipo != A.tipo && A.tipo != lambda) D.tipo = tipo_error error("error de declaracio tipos incorrectos")}
+	
+
+### Asignaciones
+A -> = E { if(E.tipo == tipo_error){A.tipo := tipo_error;}
+		else{A.tipo := E.tipo}
+
+A -> %= E {{ if(E.tipo == entero){A.tipo := E.tipo}
+		else{A.tipo := tipo_error; error ("asignacion con resto sin enteros")}
+
+A -> lambda {A.tipo := lambda}
+
+#### Parámetros
+
+L -> T id { AñadeParamTS(id.nombre, T.tipo, n_params); n_params += 1 }
+
+L -> T id { AñadeParamTS(id.nombre, T.tipo,n_params );  n_params += 1} , L 
+
+L -> Lambda 
+
+#### Tipos de datos
+
+T -> int { T.tipo := entero; T.tamaño := 4; }
+
+T -> bool  { T.tipo := lógico; T.tamaño := 1; }
+
+T -> void { T.tipo := vacío; T.tamaño := 0; }
+
+T -> string { T.tipo := cadena; T.tamaño := 64; }
+
+
+#### Sentencias
+
+S -> id = E {if (BuscaTipoTS(id.nombre) == E.tipo) { S.tipo := tipo_ok;} 
+		else { S.tipo := tipo_error; GenerarError("Tipo incompatible"); }}
+
+S -> id %= E {if (BuscaTipoTS(id.nombre) == entero && E.tipo == entero) { S.tipo = tipo_ok;} 
+		else {S.tipo = tipo_error;GenerarError("Operador incompatible");} }
+
+S -> if E {if (E.tipo == lógico){S.tipo=tipo_ok}
+		else {S.tipo=tipo_error; GenerarError("Condición no lógica"); }}
+	{ S1 } {if(S1.tipo == tipo_errir)(S.tipo =tipo_error)}
+	B {(S.tipo = B.tipo)}
+
+S -> while E {if (E.tipo == lógico){S.tipo=tipo_ok}
+		else {S.tipo=tipo_error; GenerarError("Condición no lógica"); }}
+	{ S1 } {(S.tipo = S1.tipo)}
+
+
+S -> return E { if (E.tipo == FuncionRetornoTS()) { S.tipo = tipo_ok;}
+   		else { S.tipo = tipo_error; GenerarError("Tipo de retorno incorrecto"); }}
+
+S -> input id  { if (BuscaTipoTS(id.nombre) != tipo_error) { S.tipo = tipo_ok;} 
+		else {S.tipo = tipo_error; GenerarError("Identificador no declarado"); }}
+
+S -> output E { if (E.tipo != tipo_error) { S.tipo = tipo_ok;}
+		else { S.tipo = tipo_error; GenerarError("Expresión inválida"); } }
+
+#### Expresiones
+
+E -> E1 + E2 {if (E1.tipo == entero && E2.tipo == entero) {E.tipo = entero;}
+      		else { E.tipo = tipo_error; GenerarError("Suma con tipos incompatibles"); } }
+
+E -> E1 == E2 { if (E1.tipo == E2.tipo) { E.tipo = lógico; } 
+		else { E.tipo = tipo_error; GenerarError("Comparación con tipos incompatibles");}}
+
+E -> E1 && E2 { if (E1.tipo == lógico && E2.tipo == lógico) {E.tipo = lógico;} 
+		else {E.tipo = tipo_error;GenerarError("Operador lógico con tipos incompatibles");}}
+
+E -> id { E.tipo := BuscaTipoTS(id.nombre); if (E.tipo == tipo_error) {GenerarError("Identificador no declarado"); } }
+
+E -> cte_ent { E.tipo = entero; } 
+
+E -> cte_str { E.tipo = cadena; }
+
+### Else
+
+B -> else { S }{ B.tipo = S.tipo}
+B-> lambda {B.tipo = tipo_ok}
+

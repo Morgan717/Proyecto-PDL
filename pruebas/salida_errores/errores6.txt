@@ -1,0 +1,3 @@
+Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 7
+Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 8
+Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 10

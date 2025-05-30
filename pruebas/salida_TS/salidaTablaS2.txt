@@ -1,0 +1,4 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'demasiado_largo'
+	ATRIBUTOS :
+

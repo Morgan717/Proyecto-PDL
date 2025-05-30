@@ -1,0 +1,509 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 'http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd'>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+<title>Arbol</title>
+<link rel="stylesheet" href="http://www-lt.ls.fi.upm.es/procesadores/Software/VASt/jquery.treeview.css" /> 
+<link rel="stylesheet" href="http://www-lt.ls.fi.upm.es/procesadores/Software/VASt/screen.css" /> 
+<script src="http://www-lt.ls.fi.upm.es/procesadores/Software/VASt/jquery.js" type="text/javascript"></script>
+<script src="http://www-lt.ls.fi.upm.es/procesadores/Software/VASt/jquery.treeview.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="CSS.css"> 
+<style type="text/css"> 
+.filetree span.Noterminales { color: Brown;}
+.filetree span.terminales { color: Red;}
+</style>
+<script>
+$(document).ready(function(){
+$("#browser").treeview();
+});
+</script>
+</head>
+<body>
+<h4>Árbol resultado de:</h4>
+<h4>Gramática: C:\y todo\UPM\Tercero\5o cuatri\PDL\practica\pruebas\z visualizador\entrada_visualizador\GRAMATICA VISUALIZADOR.txt</h4>
+<h4>Parse: C:\y todo\UPM\Tercero\5o cuatri\PDL\practica\pruebas\z visualizador\entrada_visualizador\parse.txt</h4>
+<ul id="browser" class="filetree">
+
+<li><span class="Noterminales">START (2)</span>
+<ul>
+<li><span class="Noterminales">FUNC_DEF (35)</span>
+<ul>
+<li><span class="terminales">function</span>
+</li>
+<li><span class="Noterminales">TIPOX (43)</span>
+<ul>
+<li><span class="terminales">int</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="terminales">(</span>
+</li>
+<li><span class="Noterminales">PARAMS (36)</span>
+<ul>
+<li><span class="Noterminales">TIPO (40)</span>
+<ul>
+<li><span class="terminales">int</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="Noterminales">PARAMSX (38)</span>
+<ul>
+<li><span class="terminales">,</span>
+</li>
+<li><span class="Noterminales">TIPO (40)</span>
+<ul>
+<li><span class="terminales">int</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="Noterminales">PARAMSX (39)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">)</span>
+</li>
+<li><span class="terminales">{</span>
+</li>
+<li><span class="Noterminales">BODY (28)</span>
+<ul>
+<li><span class="Noterminales">SEN (10)</span>
+<ul>
+<li><span class="Noterminales">RETURN_STMT (32)</span>
+<ul>
+<li><span class="terminales">return</span>
+</li>
+<li><span class="Noterminales">RETURN_STMTX (33)</span>
+<ul>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (17)</span>
+<ul>
+<li><span class="terminales">+</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">BODY (29)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">}</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">START (1)</span>
+<ul>
+<li><span class="Noterminales">SEN (4)</span>
+<ul>
+<li><span class="Noterminales">DECL (11)</span>
+<ul>
+<li><span class="terminales">var</span>
+</li>
+<li><span class="Noterminales">TIPO (40)</span>
+<ul>
+<li><span class="terminales">int</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="Noterminales">DECLX (12)</span>
+<ul>
+<li><span class="Noterminales">ASIGN (15)</span>
+<ul>
+<li><span class="terminales">=</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (22)</span>
+<ul>
+<li><span class="terminales">cte</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">START (1)</span>
+<ul>
+<li><span class="Noterminales">SEN (4)</span>
+<ul>
+<li><span class="Noterminales">DECL (11)</span>
+<ul>
+<li><span class="terminales">var</span>
+</li>
+<li><span class="Noterminales">TIPO (40)</span>
+<ul>
+<li><span class="terminales">int</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="Noterminales">DECLX (12)</span>
+<ul>
+<li><span class="Noterminales">ASIGN (15)</span>
+<ul>
+<li><span class="terminales">=</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (22)</span>
+<ul>
+<li><span class="terminales">cte</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">START (1)</span>
+<ul>
+<li><span class="Noterminales">SEN (7)</span>
+<ul>
+<li><span class="Noterminales">IF_STMT (25)</span>
+<ul>
+<li><span class="terminales">if</span>
+</li>
+<li><span class="terminales">(</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (19)</span>
+<ul>
+<li><span class="terminales">==</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">)</span>
+</li>
+<li><span class="terminales">{</span>
+</li>
+<li><span class="Noterminales">BODY (28)</span>
+<ul>
+<li><span class="Noterminales">SEN (8)</span>
+<ul>
+<li><span class="Noterminales">OUTPUT_STMT (30)</span>
+<ul>
+<li><span class="terminales">output</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (17)</span>
+<ul>
+<li><span class="terminales">+</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">BODY (29)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">}</span>
+</li>
+<li><span class="Noterminales">IF_STMTX (26)</span>
+<ul>
+<li><span class="terminales">else</span>
+</li>
+<li><span class="terminales">{</span>
+</li>
+<li><span class="Noterminales">BODY (28)</span>
+<ul>
+<li><span class="Noterminales">SEN (8)</span>
+<ul>
+<li><span class="Noterminales">OUTPUT_STMT (30)</span>
+<ul>
+<li><span class="terminales">output</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (17)</span>
+<ul>
+<li><span class="terminales">+</span>
+</li>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (22)</span>
+<ul>
+<li><span class="terminales">cte</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">BODY (29)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">}</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">START (2)</span>
+<ul>
+<li><span class="Noterminales">FUNC_DEF (35)</span>
+<ul>
+<li><span class="terminales">function</span>
+</li>
+<li><span class="Noterminales">TIPOX (45)</span>
+<ul>
+<li><span class="terminales">boolean</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="terminales">(</span>
+</li>
+<li><span class="Noterminales">PARAMS (36)</span>
+<ul>
+<li><span class="Noterminales">TIPO (42)</span>
+<ul>
+<li><span class="terminales">boolean</span>
+</li>
+</ul>
+</li>
+<li><span class="terminales">id</span>
+</li>
+<li><span class="Noterminales">PARAMSX (39)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">)</span>
+</li>
+<li><span class="terminales">{</span>
+</li>
+<li><span class="Noterminales">BODY (28)</span>
+<ul>
+<li><span class="Noterminales">SEN (10)</span>
+<ul>
+<li><span class="Noterminales">RETURN_STMT (32)</span>
+<ul>
+<li><span class="terminales">return</span>
+</li>
+<li><span class="Noterminales">RETURN_STMTX (33)</span>
+<ul>
+<li><span class="Noterminales">EXP (16)</span>
+<ul>
+<li><span class="Noterminales">VAL (21)</span>
+<ul>
+<li><span class="terminales">id</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">EXPX (20)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">;</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">BODY (29)</span>
+<ul>
+<li><span class="terminales">lambda</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><span class="terminales">}</span>
+</li>
+</ul>
+</li>
+<li><span class="Noterminales">START (3)</span>
+<ul>
+<li><span class="terminales">eof</span>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,10 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 's'
+	ATRIBUTOS :
+
+* LEXEMA : 'String'
+	ATRIBUTOS :
+
+* LEXEMA : 'mal'
+	ATRIBUTOS :
+

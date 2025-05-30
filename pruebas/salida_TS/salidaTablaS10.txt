@@ -1,0 +1,42 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'b'
+	ATRIBUTOS :
+		+ tipo : boolean 
+		+ desplazamiento : 0 
+
+* LEXEMA : 'a'
+	ATRIBUTOS :
+		+ tipo : boolean 
+		+ desplazamiento : 1 
+
+* LEXEMA : 'esPar'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : boolean 
+		+ desplazamiento : 2 
+		+ numParam : 1 
+		+ TipoParam1 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION esPar #2:
+* LEXEMA: 'num' 
+	ATRIBUTOS :
+		+ param : 1 
+		+ desplazamiento : 0 
+		+ tipo : int 
+---------------------------------------------------
+* LEXEMA : 'salida'
+	ATRIBUTOS :
+		+ tipo : string 
+		+ desplazamiento : 2 
+
+* LEXEMA : 'primero'
+	ATRIBUTOS :
+		+ tipo : boolean 
+		+ desplazamiento : 6 
+
+* LEXEMA : 'segundo'
+	ATRIBUTOS :
+		+ tipo : boolean 
+		+ desplazamiento : 7 
+

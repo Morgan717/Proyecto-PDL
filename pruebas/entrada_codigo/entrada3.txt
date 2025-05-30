@@ -1,0 +1,28 @@
+/*Tercera prueba con errores sintacticos*/
+
+var int x == 3;
+int nota = 5;
+var int y = 5;
+var string declarando && 5;
+
+fuction void resta(int i , ){
+
+var int j = i - 2;
+
+}
+
+input 45;
+
+output nota;
+
+if ( y + 6 == 11){
+
+/* no hacemos nada
+}
+else return;
+
+
+
+
+
+

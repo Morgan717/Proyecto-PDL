@@ -1,0 +1,8 @@
+Error de tipo: Semantico; Variable duplicada: i ya ha sido declarada previamente linea de codigo: 1
+Error de tipo: Semantico; Error al asignar: se esta itentando asignar un int a una varible tipo:  linea de codigo: 1
+Error de tipo: Semantico; Variable duplicada: hola ya ha sido declarada previamente linea de codigo: 2
+Error de tipo: Semantico; Error al asignar: se esta itentando asignar un boolean a una varible tipo:  linea de codigo: 2
+Error de tipo: Semantico; Variable duplicada: x ya ha sido declarada previamente linea de codigo: 3
+Error de tipo: Semantico; Error al asignar: se esta itentando asignar un int a una varible tipo:  linea de codigo: 3
+Error de tipo: Lexico; Caracter no reconocido: < linea de codigo: 7
+Error de tipo: Sintactico; Valor no esperado: cte detras  de variable  linea de codigo: 7
