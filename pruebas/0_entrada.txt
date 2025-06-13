@@ -1,0 +1,9 @@
+/*prueba para probar llamad a funciones*/
+var int a = 0;
+var int b= 2;
+
+function boolean igual(int a, int b) {
+    return a == b;
+}
+
+igual(a,b);

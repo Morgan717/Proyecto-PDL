@@ -40,6 +40,7 @@ public class GestorErrores {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        if (tipo.equals("Semantico")) return;  //ignoramos errores semánticos para probar ahora el sintactico
 
         // para que sea mas sencilla la implementacion cortamos todo en cuanto detectamos error
         if (sintactico != null) sintactico.finSintactico();

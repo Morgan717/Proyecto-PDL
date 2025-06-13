@@ -1,2 +1,0 @@
-Error de tipo: Semantico; Variable duplicada: demasiado_largo ya ha sido declarada previamente linea de codigo: 3
-Error de tipo: Sintactico; Error de variable, valor no esperado: CAD linea de codigo: 3

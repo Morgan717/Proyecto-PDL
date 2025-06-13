@@ -1,7 +1,0 @@
-Error de tipo: Semantico; Variable duplicada: s ya ha sido declarada previamente linea de codigo: 3
-Error de tipo: Lexico; No se ha cerrado la cadena de caracteres linea de codigo: 3
-Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 3
-Error de tipo: Semantico; Error de asignacion linea de codigo: 3
-Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 3
-Error de tipo: Semantico; tipo de variable no reconocida al asignar linea de codigo: 3
-Error de tipo: Sintactico; Valor no esperado: id detras  de variable  linea de codigo: 3

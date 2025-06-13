@@ -51,26 +51,21 @@ public class AnalizadorSintactico {
             avanzar();
         }else if(tokenActual == "id"){
                  // este caso en concreto para dar una mas exacta salida de error
-                error("Valor no esperado: "+ tokenSig + " detras  de variable ");
-                avanzar();
-                tokenActual  = token;// marcamos como error pero corregimos para poder seguir analizando de forma correcta
+                error("Valor no esperado: '"+ tokenSig + "' despues de: '" + semantico.getLexema()+"'");
         }
         else if(tokenSig.equals("eof")){
             error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-            finSintactico();
-            System.exit(1);
-        }else {
-            error("Se esperaba " + token + ", encontrado " + tokenSig);
-            avanzar();
-            tokenActual  = token;// marcamos como error pero corregimos para poder seguir analizando de forma correcta
-        }
 
+        }else if (tokenSig == "id") {
+            error("Se esperaba '" + token + "', encontrado '" + semantico.getLexema()+"'");
+        }
+        else{
+            error("Se esperaba '" + token + "', encontrado '" + tokenSig +"'");
+        }
     }
 
     private void error(String mensaje) {
         gestorE.error("Sintactico",mensaje);
-        finSintactico();
-        System.exit(1);  // Detener ejecución en caso de error
     }
 
     public void analizar(){
@@ -153,8 +148,6 @@ public class AnalizadorSintactico {
                     break;
                 case"eof":
                     error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                    finSintactico();
-                    System.exit(1);
                     break;
                 default:
                     error("Error en el segundo elemento valor no esperado: "+ tokenActual);
@@ -219,8 +212,6 @@ public class AnalizadorSintactico {
                 EXP();
             }else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             } else {
                 error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
                 avanzar();
@@ -275,8 +266,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else salida.write("20 "); // solo VAL
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -300,8 +289,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else error("Error de variable, valor no esperado: " + tokenSig );
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -369,8 +356,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else {
                 salida.write("29 "); // lambda
             }
@@ -422,8 +407,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else {
                 salida.write("34 "); // solo return
             }
@@ -465,7 +448,7 @@ public class AnalizadorSintactico {
         try {
 
             if (tokenSig.equals("int") || tokenSig.equals("string") || tokenSig.equals("boolean") || tokenSig.equals("void")) {
-                salida.write("36 ");
+                salida.write("36 ");//importante despues de comprobar puedes entrar y no hacer nada
                 semantico.setN_param(1);
                 pos.setTokenActual(TIPO());// token actual = int;...
                 pos.setProduccion("PARAMS");
@@ -475,8 +458,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else {
                 salida.write("37 "); // lambda
             }
@@ -488,7 +469,7 @@ public class AnalizadorSintactico {
     private void PARAMSX() {
         try {
             if(tokenSig.equals(",")) {
-                salida.write("38 ");
+                salida.write("38 ");//importante despues de comprobar puedes entrar y no hacer nada
                 semantico.setN_param(semantico.getN_param()+1);
                 equipara(",");
                 pos.setTokenActual(TIPO());// token actual = int;...
@@ -499,8 +480,6 @@ public class AnalizadorSintactico {
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-                finSintactico();
-                System.exit(1);
             }else {
                 salida.write("39 ");
             }
@@ -580,6 +559,7 @@ public class AnalizadorSintactico {
                 ASIGN();
             } else if (tokenSig.equals("(")) {
                 salida.write("49 ");
+                // token actual es id
                 FUNC_CALL();
             }else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
@@ -591,25 +571,62 @@ public class AnalizadorSintactico {
         }
     }
     private void FUNC_CALL(){
-            //primero comprobamos si el id es una funcion
-            // en el semantico tenemos lexema que es el ultimoi ID leido
-        String s = semantico.getLexema();
-        if(!tablaS.declarado(s)){
-            error("Llamada a una funcion no declarada");
-        }
-        else{
+            //token actual sabemos que es id
             try {
                 salida.write("50 ");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-            equipara("id");
-            equipara("(");
-            PARAMS();
-            equipara(")");
 
+        try {
+            salida.write("50 ");
+            if(tokenSig.equals("(")) {
+                // equiparamos
+                equipara("(");//ahora token actual (
+                ARGUMENTOS();
+                equipara(")");
+            } else if(tokenSig.equals("eof")){
+                error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
+            }
+            else{
+                error("Error al llamar a una funcion valor no esperado: '"+ tokenSig + "' despues de: '" + semantico.getLexema()+"'");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-
+    }
+    private void ARGUMENTOS(){
+        try{
+                //token actual (
+                if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
+                    salida.write("51 ");//importante despues de comprobar puedes entrar y no hacer nada
+                    VAL();// ahora el token actual es id cte cad
+                    ARGUMENTOSX();  // posibles más argumentos
+                }   else if(tokenSig.equals("eof")){
+                        error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
+                    }else {
+                        salida.write("52 "); // lambda
+                    }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    public void ARGUMENTOSX(){
+        try{
+            //token actual id cte cad
+            if (tokenSig.equals(",")) {
+                salida.write("53 "); //importante despues de comprobar puedes entrar y no hacer nada
+                equipara(",");
+                VAL();// ahora el token actual es id cte cad
+                ARGUMENTOSX();  // posibles más argumentos
+            }   else if(tokenSig.equals("eof")){
+                error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
+            }else {
+                salida.write("54 "); // lambda
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void finSintactico(){

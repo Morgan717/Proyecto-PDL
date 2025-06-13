@@ -1,2 +1,0 @@
-Error de tipo: Semantico; Variable duplicada: x ya ha sido declarada previamente linea de codigo: 3
-Error de tipo: Sintactico; Declaracion mal hecha linea de codigo: 3

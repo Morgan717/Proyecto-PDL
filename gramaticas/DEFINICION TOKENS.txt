@@ -1,0 +1,35 @@
+DEFINICION TOKENS
+Elemento 	Código de Token 	Atributo
+boolean 	BOOL 			true/false
+function 	FUNCT 			-
+if 		IF 			-
+input 		INPUT			-
+int 		INT 			-
+output 		OUTPUT 			-
+return 		RETURN 			-
+string 		STRING 			-
+var 		VAR 			-
+void 		VOID 			-
+while 		WHILE 			-
+constante 	
+entera 		Cte 			Numero
+Cadena(‘) 	Cad 			Cadena(“c*”)
+Identificador 	id 			posTS
+%= 		AsigRest 		-
+= 		Asig 			-
+, 		Coma 			-
+; 		PuntoComa 		-
+( 		ParIzq 			-
+) 		ParDrch 		-
+{ 		LlavIzq 		-
+} 		LlavDrch 		-
+Operador
+Aritmético: 
+Suma (+) 	OpArSuma 		-
+Operador
+Aritmético:
+Logico (&&)	OpLogAnd 		-
+Operador
+Relacional:
+Igual (==) 	OpRelIgual 		-
+EOF 		eof 			-

@@ -1,0 +1,52 @@
+/** No se debe cambiar el ejemplo hasta que lo indique el profesor **/
+var  boolean bb ;
+var string s ;
+var int a ;
+
+a= a > 88 + 3;
+
+function int RR (void n, boolean b)	// function */
+{
+	var  boolean log;
+	log= n < a < 5;
+	input kk;
+	if (b && log)	return log;
+	return n - RR (n - 1, bb);	
+}
+
+var string  _s_;
+
+RR = 1;
+
+function output (string s, int RR, string pp)	
+{
+	input s;
+	var boolean s_;
+	output"hola;
+	output a;
+	output RR;	input s;
+	if (bb)return ;
+	output (4 + a + (0032765 + (8 +)));
+}
+
+kk=888.88;
+s_ = "++++++Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooo";
+
+function string cadena (void)
+{
+	var string kk ;
+	while (a-- > 99 || bb) 
+	{put ('{9}', RR(s, bb), kk);
+		var		string xx;
+		xx=s_;
+		if (bb) if(bb) 
+			return s;
+	}
+		return "";
+
+
+	s= cadena(kk);
+	a= RR (a, bb);
+	kk = put (kk,99,s_);
+	return s;
+

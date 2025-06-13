@@ -1,0 +1,106 @@
+Terminales (Tokens) = { boolean function if else input int output return string var void while cte cad id %= = , ; ( ) { } + && == eof }
+
+NoTerminales = { START, SEN, DECL, DECLX, ASIGN, ASIGNX, EXP, EXPX, VAL, BLOQUE, WHILE_LOOP, IF_STMT, IF_STMTX, OUTPUT_STMT, INPUT_STMT, RETURN_STMT, RETURN_STMTX, FUNC_DEF, PARAMS, PARAMSX, BODY, OP_ARIT, OP_LOG, OP_REL, TIPO, TIPOX }
+
+Axioma = START
+
+Producciones = {
+START -> SEN START 	1
+START -> FUNC_DEF START 2
+START -> eof		3
+
+
+SEN -> DECL ;		4 
+SEN -> GESTOR ;		5
+SEN -> WHILE_LOOP	6
+SEN -> IF_STMT		7
+SEN -> OUTPUT_STMT ;	8
+SEN -> INPUT_STMT ;	9
+SEN -> RETURN_STMT ;	10
+
+
+DECL -> var TIPO id DECLX 11
+
+
+DECLX -> ASIGN		12
+DECLX -> lambda		13
+
+
+ASIGN -> %= EXP		14
+ASIGN -> = EXP		15
+
+
+EXP -> VAL EXPX  	16
+
+
+EXPX -> + EXP		17
+EXPX -> && EXP		18
+EXPX -> == EXP		19
+EXPX -> lambda 		20
+
+
+VAL -> id 		21
+VAL -> cte		22
+VAL -> cad		23
+
+
+WHILE_LOOP -> while ( EXP ) { BODY }	24
+
+
+IF_STMT -> if ( EXP ) { BODY } IF_STMTX	25
+
+
+IF_STMTX -> else { BODY }	26
+IF_STMTX -> lambda		27
+
+
+BODY -> SEN BODY	28
+BODY -> lambda		29
+
+
+OUTPUT_STMT -> output EXP	30
+
+
+INPUT_STMT -> input id	31
+
+
+RETURN_STMT -> return RETURN_STMTX	32
+
+
+RETURN_STMTX -> EXP	33
+RETURN_STMTX -> lambda	34
+
+
+FUNC_DEF -> function TIPOX id ( PARAMS ) { BODY }	35
+
+
+PARAMS -> TIPO id PARMSX	36
+PARAMS -> lambda 		37
+
+
+PARAMSX -> , TIPO id PARMSX 	38
+PARAMSX -> lambda 		39
+
+
+TIPO -> int		40
+TIPO -> string		41
+TIPO -> boolean		42
+
+
+TIPOX -> int		43
+TIPOX -> string		44
+TIPOX -> boolean	45
+TIPOX -> void		46
+
+GESTOR -> id GESTORX  	47
+GESTORX -> ASIGN	48
+GESTORX -> FUNC_CALL	49
+FUNC_CALL -> ( ARGUMENTOS )	50
+
+ARGUMENTOS -> VAL ARGUMENTOSX 51
+ARGUMENTOS -> lambda 52
+
+ARGUMENTOSX -> , VAL ARGUMENTOSX 53
+ARGUMENTOSX -> lambda 54
+
+}

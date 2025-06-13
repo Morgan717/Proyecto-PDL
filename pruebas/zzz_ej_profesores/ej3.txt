@@ -1,0 +1,60 @@
+/*/No se debe cambiar el ejemplo hasta que lo indique el profesor **/
+var  string   s;
+var  int  a ;
+var boolean  bb;
+
+function int RR  (int n, boolean b)	/* fun*/
+{
+	var boolean log;
+	log = n < a ;
+	input kk;
+	if (b || (log))	
+	return kk;
+	return n + RR (n, bb);	
+}
+
+var string s1;
+	
+function void
+put (string s, int RR, int pp)	
+{
+	output s;
+	output(RR);	input a;		output a + 9876 + (8 +3);
+	return;	
+}
+
+var boolean s11
+;
+
+function string cadena (void)
+{
+	var boolean kk  ;
+	if (kk) return 'hola';
+	switch (a)
+	{
+	   case 00: put ('{$}', RR(9, bb), 88); break;
+	   case 9: 
+	   case 88: var string xx;
+		if (kk) 
+			   break;	   xx=s;
+	   case 666: return xx;
+	   case 4444: output('viernes'); break;
+	   case 22222: kk= (a < 9) || bb;
+	}
+		return '';
+	xx=s1;
+
+
+
+}
+
+
+
+	s = ('Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooo');
+	output 'hola';
+	/*a= RR (5, kk);*/
+	output cadena();
+
+	put (s1, 9, (888));
+	/*return s;*/
+	bb= 999 < 88 + a;

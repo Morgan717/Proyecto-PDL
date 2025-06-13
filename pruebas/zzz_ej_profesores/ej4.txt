@@ -1,0 +1,57 @@
+//** No se debe cambiar el ejemplo hasta que lo indique el profesor **/
+var  string  s;
+var int  a;
+var boolean bb ;
+
+
+function  int RR (int n, boolean b, int pp, string)
+{
+	input(kk);
+	var boolean log  ;
+	log= n < b	;	
+	if (b && log)	return b;
+	return RR (n + 1, bb);	
+}
+
+var   string _ss;
+kk=332211;
+
+function void output (string s, int RR)	
+{
+	let boolean ss;
+	
+	output 
+	"++++Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooo??";
+	RR= (a +3);
+		output(s)
+	;if (bb) return ;
+	output RR;		output ( a + ((987 +( 8) +3)));
+}
+
+RR = kk;
+
+function  cadena string(void)
+{
+	var boolean kk;
+	if ((a != 000091) || bb) 
+	{put ('{9}', RR(a, bb));
+	var string   xx;
+	xx= kk;
+	if (bb) if (bb) 
+		return xx;
+	}
+		return "";
+	xx= ss;
+
+
+/* fin func */
+
+s = ";
+a= RR (5, bb, (9), kk);
+return cadena();
+kk= put (kk,9);
+
+a@= 9 < a + 3;
+
+
+

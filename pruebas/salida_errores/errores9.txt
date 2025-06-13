@@ -1,4 +1,0 @@
-Error de tipo: Semantico; Error en return, el valor devuelto de return no coincide con el tipo de retorno de la funcion linea de codigo: 4
-Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 7
-Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 11
-Error de tipo: Semantico; Uso de una variable no declarada linea de codigo: 14
