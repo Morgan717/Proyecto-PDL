@@ -24,11 +24,11 @@ public class Main {
 
             try {
                 // Crear archivos directamente en la carpeta actual
-                entrada = new File(pruebasDir, "entrada" + i + ".txt");
-                salidaToken = new File(pruebasDir, "salidaToken" + i + ".txt");
-                salidaTablaS = new File(pruebasDir, "salidaTablaS" + i + ".txt");
-                salidaParse = new File(pruebasDir, "salidaParse" + i + ".txt");
-                salidaErrores = new File(pruebasDir, "errores" + i + ".txt");
+                entrada = new File(pruebasDir,  i + "_entrada"  + ".txt");
+                salidaToken = new File(pruebasDir, i + "_tokens"  + ".txt");
+                salidaTablaS = new File(pruebasDir, i + "_tabla"  + ".txt");
+                salidaParse = new File(pruebasDir, i + "_parse"  + ".txt");
+                salidaErrores = new File(pruebasDir, i + "_errores"  + ".txt");
             } catch (NullPointerException e) {
                 throw new RuntimeException(e);
             }
