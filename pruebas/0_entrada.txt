@@ -7,3 +7,5 @@ function boolean igual(int a, int b) {
 }
 
 igual(a,b);
+
+a = igual(2,2);

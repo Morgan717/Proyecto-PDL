@@ -1,15 +1,18 @@
 ### Producciones
 
 P'-> P P'| lambda
-P -> D P | S P | F P | lambda
+P -> D P | S P | F P | M P | lambda
 F -> T id ( L ) { P }
 D -> var T id A
-A -> = E | %= E lambda
-L -> T id | T id , L | lamda
+A -> = E | %= E | lambda
+L -> T id | T id , L | lambda
 T -> int | bool | void | string 
 S -> id = E | id %= E | if ( E ) { S } B | while ( E ) { S } | return E | input id  | output E  | lambda
-E -> E + E | E == E | E && E | id | cte_ent | cte_str 
-B -> else { S } |lambda
+E -> E + E | E == E | E && E | id | cte_ent | cte_str | M
+B -> else { S } | lambda
+R -> G , R | G | lambda
+G -> cte_ent | cte_str | id 
+M -> id ( R ) 
 
 AXIOMA = P'
 
@@ -22,6 +25,8 @@ P -> {zona_decl := true; TSL = CreaTabla(); desplL= 0; in_funcion := true} F {TS
 P -> {zona_decl := true;} D {zona_decl := false} P
 
 P -> S P
+
+P- > M P
 
 P -> lambda
 
@@ -75,14 +80,17 @@ S -> id = E {if (BuscaTipoTS(id.nombre) == E.tipo) { S.tipo := tipo_ok;}
 S -> id %= E {if (BuscaTipoTS(id.nombre) == entero && E.tipo == entero) { S.tipo = tipo_ok;} 
 		else {S.tipo = tipo_error;GenerarError("Operador incompatible");} }
 
-S -> if E {if (E.tipo == lógico){S.tipo=tipo_ok}
-		else {S.tipo=tipo_error; GenerarError("Condición no lógica"); }}
-	{ S1 } {if(S1.tipo == tipo_errir)(S.tipo =tipo_error)}
-	B {(S.tipo = B.tipo)}
+S -> if E {if (E.tipo == lógico){S.tipo :=tipo_ok}
+		else {S.tipo :=tipo_error; GenerarError("Condición no lógica"); }}
+	{ S1 } 
+	{if(S1.tipo == tipo_errir)(S.tipo :=tipo_error)}
+	B 
+	{(S.tipo = B.tipo)}
 
 S -> while E {if (E.tipo == lógico){S.tipo=tipo_ok}
-		else {S.tipo=tipo_error; GenerarError("Condición no lógica"); }}
-	{ S1 } {(S.tipo = S1.tipo)}
+		else {S.tipo :=tipo_error; GenerarError("Condición no lógica"); }}
+	{ S1 } 
+	{(S.tipo := S1.tipo)}
 
 
 S -> return E { if (E.tipo == FuncionRetornoTS()) { S.tipo = tipo_ok;}
@@ -111,8 +119,36 @@ E -> cte_ent { E.tipo = entero; }
 
 E -> cte_str { E.tipo = cadena; }
 
+E -> M {E.tipo := M.tipo;}
+
 ### Else
 
-B -> else { S }{ B.tipo = S.tipo}
+B -> else { S } { B.tipo = S.tipo}
 B-> lambda {B.tipo = tipo_ok}
+
+## Llamada a funciones
+
+M -> id ( R ) {tipo_func := BuscaTipoTS(id.nombre);
+    		if (!EsFuncion(tipo_func)) { GenerarError("No es una función"); M.tipo := tipo_error; } 
+		else if (!TiposCompatiblesArgs(id.param_tipos, R.tipos)) {
+        		GenerarError("Tipos o número de argumentos incorrectos");M.tipo := tipo_error;}
+  		else {M.tipo := id.nombre.tipo_retorno;} }
+
+## Lista Argumentos
+
+R -> G , R1 { if (G.tipo == tipo_error || R1.tipos == tipo_error) { R.tipos := tipo_error;} 
+		else { R.tipos += [G.tipo] + R1.tipos;} }
+
+R -> G {if (G.tipo == tipo_error) { R.tipos := tipo_error;} 
+	else {R.tipos += [G.tipo];} }
+
+R -> lambda { R.tipos := [];}
+
+G -> id {G.tipo := BuscaTipoTS(id.nombre); 
+	if (G.tipo == tipo_error) { GenerarError("Identificador no declarado");}}
+
+G -> cte_ent { G.tipo := entero; }
+
+G -> cte_str { G.tipo := cadena; }
+
 

@@ -38,69 +38,70 @@ EXPX -> && EXP		18
 EXPX -> == EXP		19
 EXPX -> lambda 		20
 
-
-VAL -> id 		21
+VAL -> id VALX  21
 VAL -> cte		22
 VAL -> cad		23
+VALX -> FUNC_CALL 24
+VALX -> lambda 25
 
 
-WHILE_LOOP -> while ( EXP ) { BODY }	24
+WHILE_LOOP -> while ( EXP ) { BODY }	26
 
 
-IF_STMT -> if ( EXP ) { BODY } IF_STMTX	25
+IF_STMT -> if ( EXP ) { BODY } IF_STMTX	27
 
 
-IF_STMTX -> else { BODY }	26
-IF_STMTX -> lambda		27
+IF_STMTX -> else { BODY }	28
+IF_STMTX -> lambda		29
 
 
-BODY -> SEN BODY	28
-BODY -> lambda		29
+BODY -> SEN BODY	30
+BODY -> lambda		31
 
 
-OUTPUT_STMT -> output EXP	30
+OUTPUT_STMT -> output EXP	32
 
 
-INPUT_STMT -> input id	31
+INPUT_STMT -> input id	33
 
 
-RETURN_STMT -> return RETURN_STMTX	32
+RETURN_STMT -> return RETURN_STMTX	34
 
 
-RETURN_STMTX -> EXP	33
-RETURN_STMTX -> lambda	34
+RETURN_STMTX -> EXP	35
+RETURN_STMTX -> lambda	36
 
 
-FUNC_DEF -> function TIPOX id ( PARAMS ) { BODY }	35
+FUNC_DEF -> function TIPOX id ( PARAMS ) { BODY }	37
 
 
-PARAMS -> TIPO id PARMSX	36
-PARAMS -> lambda 		37
+PARAMS -> TIPO id PARMSX	38
+PARAMS -> lambda 		    39
 
 
-PARAMSX -> , TIPO id PARMSX 	38
-PARAMSX -> lambda 		39
+PARAMSX -> , TIPO id PARMSX 	40
+PARAMSX -> lambda 		41
 
 
-TIPO -> int		40
-TIPO -> string		41
-TIPO -> boolean		42
+TIPO -> int		    42
+TIPO -> string		43
+TIPO -> boolean		44
 
 
-TIPOX -> int		43
-TIPOX -> string		44
-TIPOX -> boolean	45
-TIPOX -> void		46
+TIPOX -> int		45
+TIPOX -> string		46
+TIPOX -> boolean	47
+TIPOX -> void		48
 
-GESTOR -> id GESTORX  	47
-GESTORX -> ASIGN	48
-GESTORX -> FUNC_CALL	49
-FUNC_CALL -> ( ARGUMENTOS )	50
+GESTOR -> id GESTORX  	49
+GESTORX -> ASIGN	    50
+GESTORX -> FUNC_CALL	51
+FUNC_CALL -> ( ARGUMENTOS )	52
 
-ARGUMENTOS -> VAL ARGUMENTOSX 51
-ARGUMENTOS -> lambda 52
+ARGUMENTOS -> VAL ARGUMENTOSX 53
+ARGUMENTOS -> lambda 54
 
-ARGUMENTOSX -> , VAL ARGUMENTOSX 53
-ARGUMENTOSX -> lambda 54
+ARGUMENTOSX -> , VAL ARGUMENTOSX 55
+ARGUMENTOSX -> lambda            56
 
 }
