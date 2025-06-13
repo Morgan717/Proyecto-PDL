@@ -30,3 +30,8 @@
 <id,4>
 <ParIzq,>
 <id,0>
+<Coma,>
+<id,2>
+<ParDrch,>
+<PuntoComa,>
+<eof,>

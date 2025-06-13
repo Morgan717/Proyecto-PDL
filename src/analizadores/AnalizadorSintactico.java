@@ -572,12 +572,6 @@ public class AnalizadorSintactico {
     }
     private void FUNC_CALL(){
             //token actual sabemos que es id
-            try {
-                salida.write("50 ");
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
         try {
             salida.write("50 ");
             if(tokenSig.equals("(")) {
