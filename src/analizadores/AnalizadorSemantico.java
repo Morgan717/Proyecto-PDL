@@ -25,7 +25,6 @@ public class AnalizadorSemantico {
     private void error(String mensaje){
         gestorE.error("Semantico",mensaje);
         finSemantico();
-        System.exit(1);
     }
     public void setN_param(int i){n_param=i;}
     public int getN_param(){return n_param;}
@@ -230,6 +229,8 @@ public class AnalizadorSemantico {
         }
         return res;
     }
-    public void finSemantico(){ tablaS.imprimirTablaS(); }
+    public void finSemantico(){
+        tablaS.imprimirTablaS();
+    }
 
 }

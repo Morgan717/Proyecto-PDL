@@ -33,14 +33,18 @@ public class Main {
                 throw new RuntimeException(e);
             }
 
-
-            PosicionActual p = new PosicionActual();
+                PosicionActual p = new PosicionActual();
                 GestorErrores gestor = new GestorErrores(salidaErrores);
                 TablaSimbolos tabla = new TablaSimbolos(salidaTablaS,gestor);
                 AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p);
-                AnalizadorLexico aL = new AnalizadorLexico(entrada, salidaToken, gestor,semantico,tabla);
-                AnalizadorSintactico aS = new AnalizadorSintactico(aL, salidaParse, gestor,semantico,p,tabla);
-                aS.analizar();
+                AnalizadorLexico lexico = new AnalizadorLexico(entrada, salidaToken, gestor,semantico,tabla);
+                AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, salidaParse, gestor,semantico,p,tabla);
+
+                // para cierre correcto al detectar error
+                gestor.setAnalizadores(lexico, sintactico, semantico);
+
+                // comienza el programa
+                sintactico.analizar();
 
         }
 }

@@ -616,9 +616,6 @@ public class AnalizadorSintactico {
         try {
             salida.flush();
             salida.close();
-            gestorE.finGestor();
-            semantico.finSemantico();
-            lexico.finLexico();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -45,9 +45,8 @@ public class AnalizadorLexico {
 
     }
     private void error(String mensaje){
+        // mandamos error y el gestor se encarga de cerrar todo correctamente
         gestorE.error("Lexico",mensaje);
-        finLexico();
-        System.exit(1);
     }
 
     private boolean avanzar() {
