@@ -580,10 +580,14 @@ public class AnalizadorSintactico {
         try {
             salida.write("52 ");
             if(tokenSig.equals("(")) {
+                pos.setProduccion("LLAMADA");
                 // equiparamos
                 equipara("(");//ahora token actual (
+                //lexema en el semantico es el id de funcion  a si que llamamos
+                semantico.procesar();
                 ARGUMENTOS();
                 equipara(")");
+                semantico.finLlamada();
             } else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             }
@@ -600,6 +604,9 @@ public class AnalizadorSintactico {
                 if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
                     salida.write("53 ");//importante despues de comprobar puedes entrar y no hacer nada
                     VAL();// ahora el token actual es id cte cad
+                    pos.setProduccion("ARGUMENTOS");
+                    pos.setTokenActual(tokenActual);
+                    semantico.procesar();
                     ARGUMENTOSX();  // posibles más argumentos
                 }   else if(tokenSig.equals("eof")){
                         error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
@@ -617,6 +624,9 @@ public class AnalizadorSintactico {
                 salida.write("55 "); //importante despues de comprobar puedes entrar y no hacer nada
                 equipara(",");
                 VAL();// ahora el token actual es id cte cad
+                pos.setProduccion("ARGUMENTOS");
+                pos.setTokenActual(tokenActual);
+                semantico.procesar();
                 ARGUMENTOSX();  // posibles más argumentos
             }   else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");

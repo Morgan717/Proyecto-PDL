@@ -1,6 +1,8 @@
 package clasesAux;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -45,6 +47,19 @@ public class Atributos {
         }
         return res;
     }
+    public List<String> getParametros() {
+        List<String> parametros = new ArrayList<>();
+        int i = 1;
+        while (true) {
+            String tipo = atributos.get("TipoParam" + i);
+            if (tipo == null) break;
+            parametros.add(tipo);
+            i++;
+        }
+        return parametros;
+    }
+
+
 
     public String imprimirAtributos(){
         StringBuilder sb = new StringBuilder();

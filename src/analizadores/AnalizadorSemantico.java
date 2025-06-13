@@ -4,6 +4,9 @@ import clasesAux.GestorErrores;
 import clasesAux.PosicionActual;
 import tablaS.TablaSimbolos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AnalizadorSemantico {
 
     private GestorErrores gestorE;
@@ -13,8 +16,9 @@ public class AnalizadorSemantico {
     private String cadena;
     private PosicionActual pos;
     private int n_param;
-
-
+    private String llamada;
+    private List<String> argumentos;
+    // esto seria la produccion P'
     public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p) {
         this.gestorE= gestor;
         this.tablaS = tablaS;
@@ -38,6 +42,7 @@ public class AnalizadorSemantico {
 
     // llamamos a procesar cuando emepzamos una produccion
     public void procesar() {
+        // produccion P
         switch (pos.getProduccion()) {
 
             case "DECL":
@@ -67,6 +72,13 @@ public class AnalizadorSemantico {
             case"&&":
                 expresiones("");
                 break;
+            case "LLAMADA":
+                llamada();
+                break;
+            case "ARGUMENTOS":
+                argumentos();
+                break;
+
             default:
                 System.err.println("Se ha llamado al semantico con una produccion no reconocida");
         }
@@ -178,7 +190,14 @@ public class AnalizadorSemantico {
 
     private String expresiones(String lexema){
         if(lexema.equals("saltar")){return "";}
-        if(lexema.equals("id")){return "";}
+        if (lexema.equals("id")) {
+            String tipo = tablaS.getTipo(Lexema);
+            if (tipo.equals("funcion")) {
+                return llamada(); // procesa y devuelve tipo de retorno
+            } else {
+                return tablaS.getTipo(Lexema); // es una variable normal
+            }
+        }
         if(lexema.equals("=") || lexema.equals("%=") ){return "";}
         if(lexema.equals("true")||lexema.equals("false") || lexema.equals("boolean") ){return"boolean";}
         String res = "";
@@ -229,6 +248,50 @@ public class AnalizadorSemantico {
         }
         return res;
     }
+    private String llamada(){
+        String nombreFuncion = Lexema;
+        if (!tablaS.declarado(nombreFuncion)) {
+            error("variable no declarada: " + nombreFuncion);
+        }
+        if (!tablaS.getTipo(nombreFuncion).equals("funcion")) {
+            error("El identificador '" + nombreFuncion + "' no es una función.");
+        }
+        argumentos = new ArrayList<>();// reinciamos lista de argumentos
+        llamada = Lexema;
+        return  tablaS.getTipoRetorno(Lexema);
+    }
+    private void argumentos(){
+        //entramos aqui con cada nuevo argumento de la llamada
+        // el token actual es el id cte cad
+        argumentos.add(tablaS.getTipo(Lexema));
+        if(pos.getTokenActual().equals("id")){
+            if (!tablaS.declarado(Lexema)) {
+                error("Uso de variable no declarada como argumento: " + Lexema);
+            }
+            // si es un id el argumento guardamos su tipo
+            argumentos.add(tablaS.getTipo(Lexema));
+        }
+        else{
+            // sustituimos el cad cte a int string
+        argumentos.add(expresiones(pos.getTokenActual()));}
+    }
+    public void finLlamada(){
+        // cuando acabemos la llamada comprobamos que los argumentos concuerdan en tipo
+    List<String> parametros = tablaS.getParametros(llamada);
+    if(parametros.size()!= argumentos.size())
+        error("Numero de argumentos incorrecto en la llamada a la funcion: '" + llamada+"'");
+    boolean coincide = true;
+    int i = 0;
+   while(i<argumentos.size()&&coincide){
+        if (!argumentos.get(i).equals(parametros.get(i))){
+            coincide =false;
+        }
+            i++;
+   }
+   if(!coincide)
+    error("El tipo incorrecto en la llamada a la funcion'"+llamada+"'");
+    }
+
     public void finSemantico(){
         tablaS.imprimirTablaS();
     }

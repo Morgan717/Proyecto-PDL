@@ -35,7 +35,7 @@ public class Main {
 
                 PosicionActual p = new PosicionActual();
                 GestorErrores gestor = new GestorErrores(salidaErrores);
-                TablaSimbolos tabla = new TablaSimbolos(salidaTablaS,gestor);
+                TablaSimbolos tabla = new TablaSimbolos(salidaTablaS);
                 AnalizadorSemantico semantico = new AnalizadorSemantico(tabla, gestor,p);
                 AnalizadorLexico lexico = new AnalizadorLexico(entrada, salidaToken, gestor,semantico,tabla);
                 AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, salidaParse, gestor,semantico,p,tabla);
