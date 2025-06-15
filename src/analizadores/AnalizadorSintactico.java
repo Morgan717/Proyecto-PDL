@@ -226,16 +226,30 @@ public class AnalizadorSintactico {
     private void EXP() {
         try {
             salida.write("16 ");
-            // viniendo del while token actual = ?
-            // produccion = "WHILE"
+            // token actual return ,
+            // token sig id cte o cad
+            // pos produccion IF WHILE RETURN // ==
+            // pos tokenActual
+            // pos TokenSig cad cte o nombre id
             VAL();
-            if(!((pos.getProduccion().equals("IF") || pos.getProduccion().equals("WHILE")) && pos.getTokenActual().isEmpty())){
+            // despues de val
+            // token sig + == &&
+            // token actual cte cad o nombre id
+            // pos token actual int
+            // pos TokenSig cad cte o nombre id
+            if(!((pos.getProduccion().equals("IF") || pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("RETURN"))
+                    && pos.getTokenActual().isEmpty())){
+                // para if while y return tenemos que comparar los dos lados de la igualdad por lo que hacemos una segunda iteracion
                 // esto quiere decir que estamos en la primera iteracion de el while o if a si que saltamos evitamos el procesar
                 semantico.procesar();
             }
-            // token actual = + , &&, o ==
+            // token actual cte cad o id
+            // token sig == && +
+            // pos Produccion = return
+            //pos tokenActual int
+            // pos token sig cte cad o nombre id
             if(tokenActual.equals("id")) pos.setTokenActual(semantico.getLexema());
-            else pos.setTokenActual(tokenActual);
+            else pos.setTokenActual(tokenActual); // pos tokenActual return
             EXPX();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -259,7 +273,8 @@ public class AnalizadorSintactico {
                 EXP();
             } else if (tokenSig.equals("==")) {
                 salida.write("19 ");
-                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF"))){pos.setProduccion("==");}
+                if(!(pos.getProduccion().equals("WHILE")||pos.getProduccion().equals("IF")||pos.getProduccion().equals("IF")))
+                {pos.setProduccion("==");}
                 else{pos.setTokenActual(tokenSig);}
                 avanzar();
                 EXP();
@@ -273,11 +288,14 @@ public class AnalizadorSintactico {
     }
 
     private void VAL() {
+        // token actual return
+        // token sig id cte o cad
         try {
             if (tokenSig.equals("id")) {
                 salida.write("21 ");
                 pos.setTokenSig(semantico.getLexema());
                 equipara("id");
+                // caso muy concreto de llamada a funciones
                 if(tokenSig=="("){
                     salida.write("24 ");
                     FUNC_CALL();
@@ -405,8 +423,11 @@ public class AnalizadorSintactico {
     private void RETURN_STMTX(){
         try{
             if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
-                if(tokenSig.equals("id"))  pos.setTokenActual(semantico.getLexema());
+                if(tokenSig.equals("id"))  pos.setTokenSig(semantico.getLexema());
                 salida.write("35 ");
+                // token actual return
+                // token siguiente id cte cad
+                // posTokenSig cte cad o nombre id
                 pos.setProduccion("RETURN");
                 EXP();
             }
@@ -581,10 +602,10 @@ public class AnalizadorSintactico {
             salida.write("52 ");
             if(tokenSig.equals("(")) {
                 pos.setProduccion("LLAMADA");
-                // equiparamos
+                // llamamos antes de equiparar para que no se actualice el lexema en el semantico por un posible id en la llamada
+                semantico.procesar();
                 equipara("(");//ahora token actual (
                 //lexema en el semantico es el id de funcion  a si que llamamos
-                semantico.procesar();
                 ARGUMENTOS();
                 equipara(")");
                 semantico.finLlamada();

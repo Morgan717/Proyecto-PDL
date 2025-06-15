@@ -1,6 +1,0 @@
-TABLA PRINCIPAL #1:
-* LEXEMA : 'a'
-	ATRIBUTOS :
-		+ tipo : int 
-		+ desplazamiento : 0 
-
