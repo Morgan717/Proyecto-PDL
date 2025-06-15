@@ -4,6 +4,7 @@ import java.io.*;
 import analizadores.AnalizadorLexico;
 import analizadores.AnalizadorSemantico;
 import analizadores.AnalizadorSintactico;
+import tablaS.TablaSimbolos;
 
 public class GestorErrores {
 
@@ -13,6 +14,8 @@ public class GestorErrores {
     private AnalizadorLexico lexico;
     private AnalizadorSintactico sintactico;
     private AnalizadorSemantico semantico;
+    private TablaSimbolos tabla;
+
 
     public GestorErrores(File salidaErr) {
         try {
@@ -25,10 +28,11 @@ public class GestorErrores {
             throw new RuntimeException(e);
         }
     }
-    public void setAnalizadores(AnalizadorLexico l, AnalizadorSintactico s, AnalizadorSemantico sem) {
+    public void setAnalizadores(AnalizadorLexico l, AnalizadorSintactico s, AnalizadorSemantico sem, TablaSimbolos t) {
         this.lexico = l;
         this.sintactico = s;
         this.semantico = sem;
+        this.tabla = t;
     }
     public void setLinea(int linea) {
         this.linea = linea;
@@ -40,11 +44,12 @@ public class GestorErrores {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        if (tipo.equals("Semantico")) return;  //ignoramos errores semánticos para probar ahora el sintactico
 
+        if(tabla!= null){
+            tabla.imprimirTablaS();
+        }
         // para que sea mas sencilla la implementacion cortamos todo en cuanto detectamos error
         if (sintactico != null) sintactico.finSintactico();
-        if (semantico != null) semantico.finSemantico();
         if (lexico != null) lexico.finLexico();
         finGestor();
         System.exit(1);

@@ -28,7 +28,6 @@ public class AnalizadorSemantico {
     }
     private void error(String mensaje){
         gestorE.error("Semantico",mensaje);
-        finSemantico();
     }
     public void setN_param(int i){n_param=i;}
     public int getN_param(){return n_param;}
@@ -292,8 +291,6 @@ public class AnalizadorSemantico {
     error("El tipo incorrecto en la llamada a la funcion'"+llamada+"'");
     }
 
-    public void finSemantico(){
-        tablaS.imprimirTablaS();
-    }
+
 
 }

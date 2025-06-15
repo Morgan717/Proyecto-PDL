@@ -41,7 +41,7 @@ public class Main {
                 AnalizadorSintactico sintactico = new AnalizadorSintactico(lexico, salidaParse, gestor,semantico,p,tabla);
 
                 // para cierre correcto al detectar error
-                gestor.setAnalizadores(lexico, sintactico, semantico);
+                gestor.setAnalizadores(lexico, sintactico, semantico, tabla);
 
                 // comienza el programa
                 sintactico.analizar();

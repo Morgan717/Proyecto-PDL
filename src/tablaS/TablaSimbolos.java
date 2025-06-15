@@ -214,5 +214,12 @@ public class TablaSimbolos {
             e.printStackTrace();
         }
     }
-
+    public void finTabla(){
+        try{
+            escritura.flush();
+            escritura.close();
+        } catch (IOException e) {
+        e.printStackTrace();
+        }
+    }
 }
