@@ -2,6 +2,7 @@ package analizadores;
 
 import clasesAux.GestorErrores;
 import clasesAux.PosicionActual;
+import clasesAux.TokenBuffer;
 import tablaS.TablaSimbolos;
 
 import java.util.ArrayList;
@@ -18,13 +19,17 @@ public class AnalizadorSemantico {
     private int n_param;
     private String llamada;
     private List<String> argumentos;
-    // esto seria la produccion P'
+    private TokenBuffer tokenBuffer; // Nuevo buffer para contexto completo
+
     public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p) {
         this.gestorE= gestor;
         this.tablaS = tablaS;
         this.pos = p; //comunicacion con el sintactico
         Lexema=""; // comunicacion con el lexico
         tablaS.setZona_declaracion(true);// la zona de declaracion empieza en true
+    }
+    public void setTokenBuffer(TokenBuffer tokenBuffer) {
+        this.tokenBuffer = tokenBuffer;
     }
     private void error(String mensaje){
         gestorE.error("Semantico",mensaje);
@@ -41,9 +46,12 @@ public class AnalizadorSemantico {
 
     // llamamos a procesar cuando emepzamos una produccion
     public void procesar() {
-        // produccion P
+        // Si tenemos buffer, procesar expresión completa
+        if (tokenBuffer != null && pos.getProduccion().startsWith("EXP")) {
+            procesarExpresionCompleta();
+        }
+        // Procesamiento normal
         switch (pos.getProduccion()) {
-
             case "DECL":
                 tablaS.setZona_declaracion(true);
                 declaracion();
@@ -53,24 +61,24 @@ public class AnalizadorSemantico {
                 tablaS.setZona_declaracion(true);
                 funcion();
                 break;
-            case"PARAMS":
+            case "PARAMS":
                 parametros();
                 break;
-            case"%=":
-            case"=":
+            case "%=":
+            case "=":
                 asignacion();
                 break;
-            case"WHILE":
+            case "WHILE":
             case "OUTPUT":
-            case"INPUT":
+            case "INPUT":
             case "RETURN":
-            case"IF":
+            case "IF":
                 sentencias();
                 break;
-            case"EXPX":
-            case"+":
-            case"==":
-            case"&&":
+            case "EXPX":
+            case "+":
+            case "==":
+            case "&&":
                 expresiones();
                 break;
             case "LLAMADA":
@@ -79,11 +87,45 @@ public class AnalizadorSemantico {
             case "ARGUMENTOS":
                 argumentos();
                 break;
-
             default:
                 System.err.println("Se ha llamado al semantico con una produccion no reconocida");
         }
     }
+    private void procesarExpresionCompleta() {
+        if (tokenBuffer == null) return;
+
+        // Obtener todos los tokens de la expresión actual
+        List<TokenBuffer.TokenInfo> tokens = tokenBuffer.getAllTokens();
+        int currentPos = tokenBuffer.getCurrentPosition();
+
+        // Procesar tokens desde la posición actual
+        for (int i = currentPos; i < tokens.size(); i++) {
+            TokenBuffer.TokenInfo token = tokens.get(i);
+
+            // Detectar fin de expresión
+            if (token.token.equals(";") || token.token.equals(")") || token.token.equals(",")) {
+                break;
+            }
+
+            // Validar operaciones
+            if (token.token.equals("+")) {
+                if (i + 1 < tokens.size()) {
+                    TokenBuffer.TokenInfo nextToken = tokens.get(i + 1);
+                    if (!"int".equals(nextToken.tipo)) {
+                        error("No se puede sumar con tipo: " + nextToken.tipo);
+                    }
+                }
+            } else if (token.token.equals("==")) {
+                if (i + 1 < tokens.size()) {
+                    TokenBuffer.TokenInfo nextToken = tokens.get(i + 1);
+                    if (!token.tipo.equals(nextToken.tipo)) {
+                        error("Comparación inválida entre " + token.tipo + " y " + nextToken.tipo);
+                    }
+                }
+            }
+        }
+    }
+
 
     private void funcion(){
         tablaS.agregarAtributo(Lexema,"tipo","funcion");
@@ -97,21 +139,21 @@ public class AnalizadorSemantico {
     }
 
     private void declaracion(){
-            int tam = datos(pos.getTokenActual());
-            // token actual = id
-            // lexema = nombre id
-            if(tam ==  -1){
-                System.err.println("En el semantico hemos intentado encontrar el tamano de un tipo de variable mal");
-                return;
-            }
-            if(tablaS.declarado(Lexema)){
-                error("Variable duplicada: "+ Lexema+" ya ha sido declarada previamente");
-            }
-            else{
-                tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());
-                tablaS.agregarAtributo(Lexema,"desplazamiento", String.valueOf(tablaS.getDespLocal()));
-                tablaS.setDespLocal(tablaS.getDespLocal() + tam);
-            }
+        int tam = datos(pos.getTokenActual());
+        // token actual = id
+        // lexema = nombre id
+        if(tam ==  -1){
+            System.err.println("En el semantico hemos intentado encontrar el tamano de un tipo de variable mal");
+            return;
+        }
+        if(tablaS.declarado(Lexema)){
+            error("Variable duplicada: "+ Lexema+" ya ha sido declarada previamente");
+        }
+        else{
+            tablaS.agregarAtributo(Lexema,"tipo",pos.getTokenActual());
+            tablaS.agregarAtributo(Lexema,"desplazamiento", String.valueOf(tablaS.getDespLocal()));
+            tablaS.setDespLocal(tablaS.getDespLocal() + tam);
+        }
     }
 
     private void asignacion() {
@@ -221,41 +263,41 @@ public class AnalizadorSemantico {
         return lexema;
     }
 
-public String expresiones(){
-    // pos token actual int
-    // pos TokenSig cad cte o nombre id
-    String s = pos.getTokenActual();
-    String e = pos.getTokenSig();
-    String sTipo = expresiones(s);
-    String eTipo = expresiones(e);
-    switch(pos.getProduccion()){
-        case"+":
-            if(!eTipo.equals(sTipo)){
-                error("error de expresion no puede sumar tipos de datos distintos");
-                return "";
-            } else if (eTipo.equals("boolean")) {
-                error("error de expresion no puedes sumar booleanos");
-                return "";
-            }
-            return "int";
-        case"==":
-            if(!eTipo.equals(sTipo)){
-                error("error de expresion no puede comparar tipos de datos distintos");
-                return "";
-            }
-            return "boolean";
-        case"&&":
-            if(!eTipo.equals(sTipo)){
-                error("error de expresion no puede comparar tipos de datos distintos");
-                return "";
-            } else if (!eTipo.equals("boolean")) {
-                error("erro de expresion no puedes comparar datos que no sean booleanos");
-                return "";
-            }
-            return "boolean";
+    public String expresiones(){
+        // pos token actual int
+        // pos TokenSig cad cte o nombre id
+        String s = pos.getTokenActual();
+        String e = pos.getTokenSig();
+        String sTipo = expresiones(s);
+        String eTipo = expresiones(e);
+        switch(pos.getProduccion()){
+            case"+":
+                if(!eTipo.equals(sTipo)){
+                    error("error de expresion no puede sumar tipos de datos distintos");
+                    return "";
+                } else if (eTipo.equals("boolean")) {
+                    error("error de expresion no puedes sumar booleanos");
+                    return "";
+                }
+                return "int";
+            case"==":
+                if(!eTipo.equals(sTipo)){
+                    error("error de expresion no puede comparar tipos de datos distintos");
+                    return "";
+                }
+                return "boolean";
+            case"&&":
+                if(!eTipo.equals(sTipo)){
+                    error("error de expresion no puede comparar tipos de datos distintos");
+                    return "";
+                } else if (!eTipo.equals("boolean")) {
+                    error("erro de expresion no puedes comparar datos que no sean booleanos");
+                    return "";
+                }
+                return "boolean";
+        }
+        return "";
     }
-    return "";
-}
 
     private String llamada(){
         String nombreFuncion = Lexema;
@@ -281,23 +323,23 @@ public String expresiones(){
         }
         else{
             // sustituimos el cad cte a int string
-        argumentos.add(expresiones(pos.getTokenActual()));}
+            argumentos.add(expresiones(pos.getTokenActual()));}
     }
     public void finLlamada(){
         // cuando acabemos la llamada comprobamos que los argumentos concuerdan en tipo
-    List<String> parametros = tablaS.getParametros(llamada);
-    if(parametros.size()!= argumentos.size())
-        error("Numero de argumentos incorrecto en la llamada a la funcion: '" + llamada+"'");
-    boolean coincide = true;
-    int i = 0;
-   while(i<argumentos.size()&&coincide){
-        if (!argumentos.get(i).equals(parametros.get(i))){
-            coincide =false;
-        }
+        List<String> parametros = tablaS.getParametros(llamada);
+        if(parametros.size()!= argumentos.size())
+            error("Numero de argumentos incorrecto en la llamada a la funcion: '" + llamada+"'");
+        boolean coincide = true;
+        int i = 0;
+        while(i<argumentos.size()&&coincide){
+            if (!argumentos.get(i).equals(parametros.get(i))){
+                coincide =false;
+            }
             i++;
-   }
-   if(!coincide)
-    error("El tipo incorrecto en la llamada a la funcion'"+llamada+"'");
+        }
+        if(!coincide)
+            error("El tipo incorrecto en la llamada a la funcion'"+llamada+"'");
     }
 
 
