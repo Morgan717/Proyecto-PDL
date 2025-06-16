@@ -1,0 +1,33 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'a'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 0 
+
+* LEXEMA : 'b'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 2 
+
+* LEXEMA : 'igual'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : boolean 
+		+ desplazamiento : 4 
+		+ numParam : 2 
+		+ TipoParam1 : int 
+		+ TipoParam2 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION igual #2:
+* LEXEMA: 'a' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 1 
+		+ desplazamiento : 0 
+* LEXEMA: 'b' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 2 
+		+ desplazamiento : 2 
+---------------------------------------------------

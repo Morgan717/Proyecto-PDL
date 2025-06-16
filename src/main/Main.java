@@ -20,7 +20,7 @@ public class Main {
             // Crear carpeta "pruebas" si no existe
             File pruebasDir = new File(basePath + "/pruebas");
             if (!pruebasDir.exists()) { pruebasDir.mkdirs();}
-            int i = 0;// diferentes ficheros
+            int i = 1;// diferentes ficheros
 
             try {
                 // Crear archivos directamente en la carpeta actual
@@ -45,6 +45,9 @@ public class Main {
 
                 // comienza el programa
                 sintactico.analizar();
+                // en caso de que no haya error finalizamos aqui
+                tabla.imprimirTablaS();       // Para forzar salida de tabla
+                gestor.finGestor();           // Para cerrar errores si no hubo errores
 
         }
 }
