@@ -184,7 +184,6 @@ public class AnalizadorSintactico {
             salida.write("11 ");
             pos.setTokenActual(TIPO()); // token actual = int;...
             pos.setProduccion("DECL");
-            semantico.setTokenBuffer(tokenBuffer); // Pasar buffer al semántico
             semantico.procesar();
             equipara("id"); // en semantico lexema ya esta actualizado
             DECLX();
@@ -241,35 +240,13 @@ public class AnalizadorSintactico {
     private void EXP() {
         try {
             salida.write("16 ");
-            // Pasar buffer al semántico para análisis completo
             semantico.setTokenBuffer(tokenBuffer);
-            // token actual return ,
-            // token sig id cte o cad
-            // pos produccion IF WHILE RETURN // ==
-            // pos tokenActual
-            // pos TokenSig cad cte o nombre id
+            semantico.iniciarExpresion();  // Iniciar nueva expresión
+
+            // Procesar primer operando
             VAL();
-            // despues de val
-            // token sig + == &&
-            // token actual cte cad o nombre id
-            // pos token actual int
-            // pos TokenSig cad cte o nombre id
-            if (!((pos.getProduccion().equals("IF") || pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("RETURN"))
-                    && pos.getTokenActual().isEmpty())) {
-                // para if while y return tenemos que comparar los dos lados de la igualdad por lo que hacemos una segunda iteracion
-                // esto quiere decir que estamos en la primera iteracion de el while o if a si que saltamos evitamos el procesar
-                semantico.procesar();
-            }
-            // token actual cte cad o id
-            // token sig == && +
-            // pos Produccion = return
-            //pos tokenActual int
-            // pos token sig cte cad o nombre id
-            if (tokenActual.equals("id")) {
-                pos.setTokenActual(semantico.getLexema());
-            } else {
-                pos.setTokenActual(tokenActual);
-            }
+
+            // Llamar a EXPX para operadores posteriores
             EXPX();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -279,37 +256,30 @@ public class AnalizadorSintactico {
 
     private void EXPX() {
         try {
+            // token sig + && ==
+            String operador = tokenSig;
             if (tokenSig.equals("+")) {
                 salida.write("17 ");
-                if (!(pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("IF"))) {
-                    pos.setProduccion("+");
-                } else {
-                    pos.setTokenActual(tokenSig);
-                }
-                avanzar();
-                EXP();
+                avanzar();// consumimos el operador
+                VAL();
+                semantico.procesarOperador(operador);
+                EXPX();
             } else if (tokenSig.equals("&&")) {
                 salida.write("18 ");
-                if (!(pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("IF"))) {
-                    pos.setProduccion("&&");
-                } else {
-                    pos.setTokenActual(tokenSig);
-                }
                 avanzar();
-                EXP();
+                VAL();
+                semantico.procesarOperador(operador);
+                EXPX();
             } else if (tokenSig.equals("==")) {
                 salida.write("19 ");
-                if (!(pos.getProduccion().equals("WHILE") || pos.getProduccion().equals("IF") || pos.getProduccion().equals("IF"))) {
-                    pos.setProduccion("==");
-                } else {
-                    pos.setTokenActual(tokenSig);
-                }
                 avanzar();
-                EXP();
+                VAL();
+                semantico.procesarOperador(operador);
+                EXPX();
             } else if (tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             } else {
-                salida.write("20 "); // solo VAL
+                salida.write("20 "); // lambda
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -322,22 +292,31 @@ public class AnalizadorSintactico {
         try {
             if (tokenSig.equals("id")) {
                 salida.write("21 ");
-                pos.setTokenSig(semantico.getLexema());
+                String lexema = semantico.getLexema();
                 equipara("id");
+                semantico.procesarOperando("id", lexema);
                 // caso muy concreto de llamada a funciones
                 if(tokenSig=="("){
                     salida.write("24 ");
                     FUNC_CALL();
                 }
                 else {salida.write("25 ");}
+                // Actualizar posición después de equiparar
+                pos.setTokenActual(tokenActual);
+                pos.setTokenSig(tokenSig);
             } else if (tokenSig.equals("cte")) {
-                salida.write("22 ");
+                int valor = semantico.getCte();
                 equipara("cte");
-                pos.setTokenSig("cte");
+                semantico.procesarOperando("cte", String.valueOf(valor));
+                pos.setTokenActual(tokenActual);
+                pos.setTokenSig(tokenSig);
             } else if (tokenSig.equals("cad")) {
                 salida.write("23 ");
+                String valor = semantico.getCadena();
                 equipara("cad");
-                pos.setTokenSig("cad");
+                semantico.procesarOperando("cad", valor);
+                pos.setTokenActual(tokenActual);
+                pos.setTokenSig(tokenSig);
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
@@ -353,10 +332,9 @@ public class AnalizadorSintactico {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        pos.setTokenActual("");
-        pos.setProduccion("WHILE");
+        semantico.iniciarExpresion();  // Iniciar nueva expresión
         equipara("(");
-        EXP();
+        EXP();  // Procesar condición
         equipara(")");
         equipara("{");
         BODY();
@@ -366,10 +344,9 @@ public class AnalizadorSintactico {
     private void IF_STMT() {
         try {
             salida.write("27 ");
-            pos.setTokenActual("");
-            pos.setProduccion("IF");
+            semantico.iniciarExpresion();  // Iniciar nueva expresión
             equipara("(");
-            EXP();
+            EXP();  // Procesar condición
             equipara(")");
             equipara("{");
             BODY();
@@ -418,14 +395,11 @@ public class AnalizadorSintactico {
     private void OUTPUT_STMT() {
         try {
             salida.write("32 ");
+            semantico.iniciarExpresion();  // Iniciar nueva expresión
+            EXP();  // Procesar expresión
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        // token actual = output
-        pos.setTokenActual("saltar");
-        pos.setProduccion("OUTPUT");
-        EXP();
-
     }
 
     private void INPUT_STMT() {
@@ -434,9 +408,7 @@ public class AnalizadorSintactico {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        pos.setTokenActual("saltar");
         pos.setProduccion("INPUT");
-        pos.setTokenSig(tokenSig);
         semantico.procesar();
         equipara ("id");
     }
@@ -457,7 +429,7 @@ public class AnalizadorSintactico {
                 // token actual return
                 // token siguiente id cte cad
                 // posTokenSig cte cad o nombre id
-                pos.setProduccion("RETURN");
+                semantico.iniciarExpresion();  // Iniciar nueva expresión
                 EXP();
             }
             else if(tokenSig.equals("eof")){

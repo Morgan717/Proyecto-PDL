@@ -60,17 +60,17 @@ public class TablaSimbolos {
     }
 
     public int add(String lexema){
-            //anadir por parte del lexico
+        //anadir por parte del lexico
         int res = posTS;
         boolean encontrado = false;
         // comprobamo la tabla actual por si estamos dentro de una funcion
-            for (String clave : tablaActual.keySet()) {
-                if (lexema.equals(clave)) {
-                    res = tablaActual.get(clave).getDesp();
-                    encontrado = true;
-                    break;
-                }
+        for (String clave : tablaActual.keySet()) {
+            if (lexema.equals(clave)) {
+                res = tablaActual.get(clave).getDesp();
+                encontrado = true;
+                break;
             }
+        }
 
         if (!encontrado){
             // si no esta en la tabla actual buscamos en la global
@@ -83,8 +83,8 @@ public class TablaSimbolos {
             }
             // si no esta en ningun lado lo añadimos
             if(!encontrado && !tablaActual.containsKey(lexema)) {
-                    tablaActual.put(lexema, null);
-                    res = ++posTS;
+                tablaActual.put(lexema, null);
+                res = ++posTS;
             }
 
         }// si no se ha encontrado o no tiene desplazamiento
@@ -95,10 +95,10 @@ public class TablaSimbolos {
     public void agregarAtributo(String lexema, String atributo, String valor) {
         // anadimos atributo a la tabla actual al lexema concreto
         if(!declarado(lexema)) {tablaActual.put(lexema, new Atributos());}
-            Atributos a = tablaActual.get(lexema);
-            a.add(atributo, valor);
+        Atributos a = tablaActual.get(lexema);
+        a.add(atributo, valor);
         // si estamos en una funcion no avanzamos la pos
-            if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }
+        if(atributo.equals("desplazamiento") && !zonaFuncion){posTS = Integer.parseInt(valor); }
     }
     public void agregarParam(String nombre,String tipo, int n) {
         // añadimos parametros a la funcion actual
@@ -219,7 +219,7 @@ public class TablaSimbolos {
             escritura.flush();
             escritura.close();
         } catch (IOException e) {
-        e.printStackTrace();
+            e.printStackTrace();
         }
     }
 }

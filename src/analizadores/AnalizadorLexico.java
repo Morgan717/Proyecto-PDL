@@ -141,7 +141,7 @@ public class AnalizadorLexico {
                     return "true";
                 case"false":
                     escrituraToken.write("<BOOL,false>\n");
-                    return "true";
+                    return "false";
                 default:
                     return "";
             }

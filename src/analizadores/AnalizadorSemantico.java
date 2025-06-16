@@ -6,7 +6,9 @@ import clasesAux.TokenBuffer;
 import tablaS.TablaSimbolos;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Stack;
 
 public class AnalizadorSemantico {
 
@@ -20,6 +22,7 @@ public class AnalizadorSemantico {
     private String llamada;
     private List<String> argumentos;
     private TokenBuffer tokenBuffer; // Nuevo buffer para contexto completo
+    private Stack<String> pilaTipos = new Stack<>();
 
     public AnalizadorSemantico(TablaSimbolos tablaS, GestorErrores gestor,PosicionActual p) {
         this.gestorE= gestor;
@@ -42,7 +45,7 @@ public class AnalizadorSemantico {
     public String getCadena(){return cadena;}
     public String getLexema(){ return Lexema; }
     public void setLexema(String s) { this.Lexema = s; }
-
+    public void iniciarExpresion() {pilaTipos.clear();}  // Limpiar pila al empezar nueva expresión
 
     // llamamos a procesar cuando emepzamos una produccion
     public void procesar() {
@@ -75,12 +78,6 @@ public class AnalizadorSemantico {
             case "IF":
                 sentencias();
                 break;
-            case "EXPX":
-            case "+":
-            case "==":
-            case "&&":
-                expresiones();
-                break;
             case "LLAMADA":
                 llamada();
                 break;
@@ -89,6 +86,71 @@ public class AnalizadorSemantico {
                 break;
             default:
                 System.err.println("Se ha llamado al semantico con una produccion no reconocida");
+        }
+    }
+    // procesamos las ctes o cad
+    public void procesarOperando(String token, String lexema) {
+        switch (token) {
+            case "cte":
+                pilaTipos.push("int");
+                break;
+            case "cad":
+                pilaTipos.push("string");
+                break;
+            case "true":
+            case "false":
+                pilaTipos.push("boolean");
+                break;
+            case "id":
+                String tipo = tablaS.getTipo(lexema);
+                if (tipo.isEmpty()) {
+                    error("Variable no declarada: " + lexema);
+                    pilaTipos.push("error");
+                } else {
+                    pilaTipos.push(tipo);
+                }
+                break;
+            default:
+                pilaTipos.push("error");
+        }
+    }
+    // procesamos los + == and &&
+    public void procesarOperador(String operador) {
+        if (pilaTipos.size() < 2) {
+            error("Faltan operandos para " + operador);
+            return;
+        }
+
+        String der = pilaTipos.pop();
+        String izq = pilaTipos.pop();
+
+        switch (operador) {
+            case "+":
+                if ("int".equals(izq) && "int".equals(der)) {
+                    pilaTipos.push("int");
+                } else {
+                    error("Suma no válida entre " + izq + " y " + der);
+                    pilaTipos.push("error");
+                }
+                break;
+
+            case "&&":
+                if ("boolean".equals(izq) && "boolean".equals(der)) {
+                    pilaTipos.push("boolean");
+                } else {
+                    error("Operación lógica no válida entre " + izq + " y " + der);
+                    pilaTipos.push("error");
+                }
+                break;
+
+            case "==":
+                if (izq.equals(der)) {
+                    pilaTipos.push("boolean");
+                } else {
+                    error("Comparación inválida entre " + izq + " y " + der);
+                    pilaTipos.push("error");
+                }
+                break;
         }
     }
     private void procesarExpresionCompleta() {
@@ -157,15 +219,25 @@ public class AnalizadorSemantico {
     }
 
     private void asignacion() {
-        //token actual = , %=
-        //token sig tipo
-        String sTipo = expresiones(pos.getTokenSig());
-        if (sTipo.isEmpty()) {
-            error("Error de asignacion");
-        } else if (pos.getProduccion().equals("%=")) {
-            if (!sTipo.equals("int")) {
-                error("Error de asignacion %= no estas usando un entero ");
+        if (pilaTipos.isEmpty()) {
+            error("Asignación sin expresión");
+            return;
+        }
+
+        String tipoExp = pilaTipos.pop();
+        String tipoVar = tablaS.getTipo(Lexema);
+
+        if (tipoVar.isEmpty()) {
+            error("Variable no declarada: " + Lexema);
+            return;
+        }
+
+        if ("%=".equals(pos.getProduccion())) {
+            if (!"int".equals(tipoVar) || !"int".equals(tipoExp)) {
+                error("Asignación %= requiere enteros");
             }
+        } else if (!tipoVar.equals(tipoExp)) {
+            error("Tipos incompatibles: " + tipoVar + " vs " + tipoExp);
         }
     }
 
@@ -196,108 +268,65 @@ public class AnalizadorSemantico {
                 return -1;
         }
     }
-    private void sentencias(){
-        // token actual lexema int
-        // token sig  lexema o cte o cad
-        String s = pos.getTokenActual();// nombre var 1
-        String e = pos.getTokenSig();// nombre var 2
-        String sTipo = expresiones(s);
-        String eTipo = expresiones(e);
+    private void sentencias() {
         switch (pos.getProduccion()) {
-            case "=": case"%=":
+            case "=":
+            case "%=":
                 asignacion();
                 break;
+
             case "OUTPUT":
-                if(eTipo.isEmpty()){error("Error en output, no puedes hacer un output con" +eTipo);}
+                if (pilaTipos.isEmpty()) {
+                    error("Output sin expresión");
+                } else {
+                    String tipo = pilaTipos.pop();
+                    if ("error".equals(tipo)) {
+                        error("Expresión inválida en output");
+                    }
+                }
                 break;
-            case"INPUT":
-                if(!e.equals("id")){error("Error en input, no puedes hacer un input con" + eTipo);}
+
+            case "INPUT":
+                // Verificar que sea una variable válida
+                if (!tablaS.declarado(Lexema)) {
+                    error("Variable no declarada: " + Lexema);
+                } else if ("funcion".equals(tablaS.getTipo(Lexema))) {
+                    error("No se puede leer una función: " + Lexema);
+                }
                 break;
+
             case "RETURN":
-                String tipo =  tablaS.getTipoRetorno();
-                if(tipo.isEmpty()){error("Error al hacer return, no hay funciones definidas");}
-                else if(tipo.equals("void")){ error("Error, return dentro de una funcion void");}
-                // si el retorno de funcion es booleano comprobamos que los dos valores comparados sean iguales
-                else if(tipo.equals("boolean") && !eTipo.equals(sTipo)){
-                    error("Error en return, el valor devuelto de return no coincide con el tipo de retorno de la funcion");}
+                if (pilaTipos.isEmpty()) {
+                    // No hay expresión: solo válido si la función es void
+                    if (!"void".equals(tablaS.getTipoRetorno())) {
+                        error("Return sin expresión en función no void");
+                    }
+                } else {
+                    String tipoExp = pilaTipos.pop();
+                    String tipoRetorno = tablaS.getTipoRetorno();
+                    if (!tipoRetorno.equals(tipoExp)) {
+                        error("Tipo de retorno incorrecto: esperaba " + tipoRetorno + ", recibió " + tipoExp);
+                    }
+                }
                 break;
-            case"WHILE":
-                if(sTipo.equals("+")){error("Condicion del while no booleana");}
+
+            case "WHILE":
+            case "IF":
+                if (pilaTipos.isEmpty()) {
+                    error("Condición faltante en " + pos.getProduccion());
+                } else {
+                    String tipoCond = pilaTipos.pop();
+                    if (!"boolean".equals(tipoCond)) {
+                        error("La condición debe ser booleana");
+                    }
+                }
                 break;
-            case"IF":
-                if(sTipo.equals("+")){error("Condicion del if no booleana");}
-                break;
+
             default:
                 error("Sentencia incorrecta");
         }
     }
 
-    private String expresiones(String lexema){
-        if(lexema.equals("saltar")){return "";}
-        if(lexema.equals("=") || lexema.equals("%=") ){return "";}
-        if(lexema.equals("true")||lexema.equals("false") || lexema.equals("boolean") ){return"boolean";}
-        if (lexema.equals("cad")||lexema.equals("string")) return "string";
-        if (lexema.equals("cte") || lexema.equals("int")) return "int";
-        if(lexema.equals("funcion")) return llamada();
-        // si no es nada de lo anterior es un id con el nombre
-        String t;
-        if(!lexema.isEmpty()) {
-            // tipo de un id
-            if (!tablaS.declarado(lexema)) {
-                // comprobamos, si no esta declarada error
-                error("Uso de una variable no declarada");
-                return "";
-            }
-            else{
-                // pedimos tipo
-                t = tablaS.getTipo(lexema);
-                // si no lo esta devuelve una cadena vacia por lo que error
-                if (t.isEmpty()) {
-                    error("Uso de una variable no declarada");
-                    return "";
-                }
-            }
-            // ahora si estamos aqui tenemos el tipo en t
-            return expresiones(t);
-        }
-        return lexema;
-    }
-
-    public String expresiones(){
-        // pos token actual int
-        // pos TokenSig cad cte o nombre id
-        String s = pos.getTokenActual();
-        String e = pos.getTokenSig();
-        String sTipo = expresiones(s);
-        String eTipo = expresiones(e);
-        switch(pos.getProduccion()){
-            case"+":
-                if(!eTipo.equals(sTipo)){
-                    error("error de expresion no puede sumar tipos de datos distintos");
-                    return "";
-                } else if (eTipo.equals("boolean")) {
-                    error("error de expresion no puedes sumar booleanos");
-                    return "";
-                }
-                return "int";
-            case"==":
-                if(!eTipo.equals(sTipo)){
-                    error("error de expresion no puede comparar tipos de datos distintos");
-                    return "";
-                }
-                return "boolean";
-            case"&&":
-                if(!eTipo.equals(sTipo)){
-                    error("error de expresion no puede comparar tipos de datos distintos");
-                    return "";
-                } else if (!eTipo.equals("boolean")) {
-                    error("erro de expresion no puedes comparar datos que no sean booleanos");
-                    return "";
-                }
-                return "boolean";
-        }
-        return "";
-    }
 
     private String llamada(){
         String nombreFuncion = Lexema;
@@ -311,37 +340,36 @@ public class AnalizadorSemantico {
         llamada = Lexema;
         return  tablaS.getTipoRetorno(Lexema);
     }
-    private void argumentos(){
-        //entramos aqui con cada nuevo argumento de la llamada
-        // el token actual es el id cte cad
-        if(pos.getTokenActual().equals("id")){
-            if (!tablaS.declarado(Lexema)) {
-                error("Uso de variable no declarada como argumento: " + Lexema);
-            }
-            // si es un id el argumento guardamos su tipo
-            argumentos.add(tablaS.getTipo(Lexema));
+    private void argumentos() {
+        if (pilaTipos.isEmpty()) {
+            error("Argumento inválido");
+            return;
         }
-        else{
-            // sustituimos el cad cte a int string
-            argumentos.add(expresiones(pos.getTokenActual()));}
-    }
-    public void finLlamada(){
-        // cuando acabemos la llamada comprobamos que los argumentos concuerdan en tipo
-        List<String> parametros = tablaS.getParametros(llamada);
-        if(parametros.size()!= argumentos.size())
-            error("Numero de argumentos incorrecto en la llamada a la funcion: '" + llamada+"'");
-        boolean coincide = true;
-        int i = 0;
-        while(i<argumentos.size()&&coincide){
-            if (!argumentos.get(i).equals(parametros.get(i))){
-                coincide =false;
-            }
-            i++;
-        }
-        if(!coincide)
-            error("El tipo incorrecto en la llamada a la funcion'"+llamada+"'");
-    }
 
+        // Obtenemos el tipo del tope de la pila
+        String tipoArgumento = pilaTipos.pop();
+
+        // Añadimos el tipo a la lista de argumentos
+        argumentos.add(tipoArgumento);
+    }
+    public void finLlamada() {
+        List<String> parametros = tablaS.getParametros(llamada);
+        Collections.reverse(argumentos); // como es una pila le damos la vuelta
+
+        // comparamos numero de argumentos
+        if (parametros.size() != argumentos.size()) {
+            error("Número incorrecto de argumentos...");
+            return;
+        }
+
+        //comparamos tipo de argumentos
+        for (int i = 0; i < parametros.size(); i++) {
+            if (!parametros.get(i).equals(argumentos.get(i))) {
+                error("Tipo incorrecto en argumento " + (i+1) + "...");
+            }
+        }
+        argumentos.clear();
+    }
 
 
 }
