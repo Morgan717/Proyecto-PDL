@@ -41,15 +41,6 @@ public class AnalizadorSintactico {
         }
     }
     private void avanzar() {
-        // Only add to buffer for expressions or when needed
-        if (pos.getProduccion() != null &&
-                (pos.getProduccion().startsWith("EXP") ||
-                        pos.getProduccion().equals("ASIGN") ||
-                        pos.getProduccion().equals("OUTPUT") ||
-                        pos.getProduccion().equals("RETURN"))) {
-            tokenBuffer.addToken(tokenSig, semantico.getLexema(),
-                    "id".equals(tokenSig) ? tablaS.getTipo(semantico.getLexema()) : "");
-        }
 
         tokenActual = tokenSig;
         if(!tokenActual.equals("eof")) {
@@ -229,6 +220,7 @@ public class AnalizadorSintactico {
                 String tipoVar = tablaS.getTipo(nombreVar);
                 tokenBuffer.addToken("id", nombreVar, tipoVar);
 
+
                 // Agregar el operador al buffer
                 tokenBuffer.addToken("%=", "%=", "operador");
 
@@ -237,6 +229,7 @@ public class AnalizadorSintactico {
 
                 // Procesar semántica de la asignación
                 semantico.procesarAsignacionCompleta(tokenBuffer);
+                tokenBuffer.clear();  // Limpiar después de procesar
 
             } else if (tokenSig.equals("=")) {
                 salida.write("15 ");
@@ -255,6 +248,7 @@ public class AnalizadorSintactico {
 
                 // Procesar semántica de la asignación
                 semantico.procesarAsignacionCompleta(tokenBuffer);
+                tokenBuffer.clear();  // Limpiar después de procesar
 
             } else if(tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
@@ -276,11 +270,6 @@ public class AnalizadorSintactico {
             VAL();
             EXPX();
 
-            // Agregar el token actual al buffer si es parte de una expresión
-            if (!tokenActual.equals(")")) { // Evitar duplicados en llamadas a función
-                String tipo = determinarTipo(tokenActual, semantico.getLexema());
-                tokenBuffer.addToken(tokenActual, semantico.getLexema(), tipo);
-            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -351,6 +340,7 @@ public class AnalizadorSintactico {
                     FUNC_CALL();
                 } else {
                     salida.write("25 ");
+                    tokenBuffer.addToken("id", lexema, tablaS.getTipo(lexema));
                 }
 
             } else if (tokenSig.equals("cte")) {
@@ -657,16 +647,9 @@ public class AnalizadorSintactico {
             salida.write("52 ");
             if(tokenSig.equals("(")) {
                 pos.setProduccion("LLAMADA");
-                // Guardar información de la función
                 String nombreFuncion = semantico.getLexema();
-                String tipoFuncion = tablaS.getTipo(nombreFuncion);
-                String tipoRetorno = "";
+                String tipoRetorno = tablaS.getTipoRetorno(nombreFuncion);
 
-                if ("funcion".equals(tipoFuncion)) {
-                    tipoRetorno = tablaS.getTipoRetorno(nombreFuncion);
-                }
-
-                // Añadir función al buffer con su tipo de retorno
                 tokenBuffer.addToken("id", nombreFuncion, tipoRetorno);
                 semantico.procesar();
                 equipara("(");//ahora token actual (

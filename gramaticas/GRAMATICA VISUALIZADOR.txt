@@ -38,8 +38,8 @@ IF_STMTX -> else { BODY }
 IF_STMTX -> lambda
 BODY -> SEN BODY
 BODY -> lambda
-OUTPUT_STMT -> output  EXP 
-INPUT_STMT -> input  id 
+OUTPUT_STMT -> output EXP 
+INPUT_STMT -> input id 
 RETURN_STMT -> return RETURN_STMTX
 RETURN_STMTX -> EXP
 RETURN_STMTX -> lambda

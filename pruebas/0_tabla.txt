@@ -9,11 +9,16 @@ TABLA PRINCIPAL #1:
 		+ tipo : int 
 		+ desplazamiento : 2 
 
+* LEXEMA : 'c'
+	ATRIBUTOS :
+		+ tipo : boolean 
+		+ desplazamiento : 4 
+
 * LEXEMA : 'igual'
 	ATRIBUTOS :
 		+ tipo : funcion 
 		+ tipo retorno : boolean 
-		+ desplazamiento : 4 
+		+ desplazamiento : 5 
 		+ numParam : 2 
 		+ TipoParam1 : int 
 		+ TipoParam2 : int 

@@ -1,6 +1,7 @@
 /*prueba para probar llamad a funciones*/
 var int a = 0;
 var int b= 2;
+var boolean c;
 
 function boolean igual(int a, int b) {
     return a == b;
@@ -8,4 +9,4 @@ function boolean igual(int a, int b) {
 
 igual(a,b);
 
-a = igual(2,2);
+c = igual(2,2);
