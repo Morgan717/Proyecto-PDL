@@ -7,7 +7,7 @@ while (i == 0) {
 var string saludo = 'Hola';
 var string nombre = 'Mundo';
 
-output saludo + nombre ;
+output saludo ;
 
 function int saludoCompleto(string s,string s2) {
 
@@ -15,4 +15,3 @@ function int saludoCompleto(string s,string s2) {
 
 }
 
-input entrada;

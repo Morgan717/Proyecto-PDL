@@ -1,0 +1,38 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'a'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 0 
+
+* LEXEMA : 'b'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 2 
+
+* LEXEMA : 'modulo'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : int 
+		+ desplazamiento : 4 
+		+ numParam : 2 
+		+ TipoParam1 : int 
+		+ TipoParam2 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION modulo #2:
+* LEXEMA: 'x' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 1 
+		+ desplazamiento : 0 
+* LEXEMA: 'y' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 2 
+		+ desplazamiento : 2 
+---------------------------------------------------
+* LEXEMA : 'resultado'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 4 
+

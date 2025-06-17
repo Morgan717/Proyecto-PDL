@@ -1,0 +1,2 @@
+Error de tipo: Sintactico; Input debe seguirse de una variable linea de codigo: 12
+Error de tipo: Semantico; Variable no declarada: result linea de codigo: 13

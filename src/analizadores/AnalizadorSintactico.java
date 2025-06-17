@@ -446,16 +446,22 @@ public class AnalizadorSintactico {
             throw new RuntimeException(e);
         }
     }
-
     private void INPUT_STMT() {
         try {
             salida.write("33 ");
+            pos.setProduccion("INPUT");
+
+            // Verificar que el siguiente token es un ID
+            if (!"id".equals(tokenSig)) {
+                error("Input debe seguirse de una variable");
+                return;
+            }
+
+            semantico.procesar();
+            equipara("id");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        pos.setProduccion("INPUT");
-        semantico.procesar();
-        equipara ("id");
     }
 
     private void RETURN_STMT() {

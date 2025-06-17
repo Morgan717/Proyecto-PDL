@@ -351,11 +351,13 @@ public class AnalizadorSemantico {
                 break;
 
             case "INPUT":
-                // Verificar que sea una variable válida
                 if (!tablaS.declarado(Lexema)) {
                     error("Variable no declarada: " + Lexema);
-                } else if ("funcion".equals(tablaS.getTipo(Lexema))) {
-                    error("No se puede leer una función: " + Lexema);
+                } else {
+                    String tipo = tablaS.getTipo(Lexema);
+                    if (!tipo.equals("int") && !tipo.equals("string")) {
+                        error("Input solo acepta variables enteras o de cadena");
+                    }
                 }
                 break;
 

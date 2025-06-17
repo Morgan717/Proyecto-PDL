@@ -1,5 +1,5 @@
 TABLA PRINCIPAL #1:
-* LEXEMA : 'x'
+* LEXEMA : 'n'
 	ATRIBUTOS :
 		+ tipo : int 
 		+ param : 1 

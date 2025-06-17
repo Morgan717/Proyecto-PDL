@@ -1,10 +1,7 @@
 var int i = 0;
-var boolean hola = true;
 var int x = 3535;
 
 function int factorial(int n) {
-
-if (n < 0){ return 0; }
 
 var int result = 0;
 result = n + n;
@@ -12,6 +9,5 @@ return result;
 
 }
 
-input variable;
-
-output x + 10;
+input 4;
+input result;

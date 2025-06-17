@@ -1,14 +1,14 @@
 /* mas errores sintacticos*/
-var string a = 'hola';
+var string a = ;
 var int b = 20;
 
-function int suma(int a, int b) {
+function suma(int , int b) {
     return a + b;
 }
 
 /* ahora errores semanticos*/
 
-var string s = 'hol';
+var string s = 3;
 
 function void error(int x){
 return x;
