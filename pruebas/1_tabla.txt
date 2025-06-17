@@ -1,0 +1,7 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'n'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 1 
+		+ desplazamiento : 0 
+

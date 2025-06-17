@@ -40,21 +40,24 @@ public class AnalizadorSintactico {
             throw new RuntimeException(e);
         }
     }
-
     private void avanzar() {
-        // Registrar token actual en el buffer
-        tokenBuffer.consumeToken();
+        // Only add to buffer for expressions or when needed
+        if (pos.getProduccion() != null &&
+                (pos.getProduccion().startsWith("EXP") ||
+                        pos.getProduccion().equals("ASIGN") ||
+                        pos.getProduccion().equals("OUTPUT") ||
+                        pos.getProduccion().equals("RETURN"))) {
+            tokenBuffer.addToken(tokenSig, semantico.getLexema(),
+                    "id".equals(tokenSig) ? tablaS.getTipo(semantico.getLexema()) : "");
+        }
 
-        // Mover al siguiente token
         tokenActual = tokenSig;
-        tokenSig = lexico.obtenerToken();
+        if(!tokenActual.equals("eof")) {
+            tokenSig = lexico.obtenerToken();
+        }
 
-        // Actualizar posición
         pos.setTokenActual(tokenActual);
         pos.setTokenSig(tokenSig);
-
-        // Añadir nuevo token al buffer
-        tokenBuffer.addToken(tokenSig, semantico.getLexema(), determinarTipo(tokenSig, semantico.getLexema()));
     }
 
     private void equipara(String token) {
