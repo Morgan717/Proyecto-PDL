@@ -1,0 +1,4 @@
+Error de tipo: Lexico; No se ha cerrado la cadena de caracteres linea de codigo: 3
+Error de tipo: Sintactico; Declaracion mal hecha linea de codigo: 5
+Error de tipo: Lexico; Caracter incorrecto a continuación del % linea de codigo: 8
+Error de tipo: Lexico; Caracter no reconocido: . linea de codigo: 11

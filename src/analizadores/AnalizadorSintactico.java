@@ -603,6 +603,7 @@ public class AnalizadorSintactico {
                     break;
                 case "void":
                     salida.write("48 ");
+                    equipara("void");
                     break;
                 case"eof":
                     error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");

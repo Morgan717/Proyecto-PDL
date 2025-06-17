@@ -1,0 +1,15 @@
+/* mas errores sintacticos*/
+var string a = 'hola';
+var int b = 20;
+
+function int suma(int a, int b) {
+    return a + b;
+}
+
+/* ahora errores semanticos*/
+
+var string s = 'hol';
+
+function void error(int x){
+return x;
+}

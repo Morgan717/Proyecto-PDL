@@ -1,0 +1,21 @@
+/*ningun error sintactico*/
+
+function int suma(int a, int b) {
+    return a + b;
+}
+
+var int x = 10;
+var int  y = 20;
+
+if (x == y) {
+
+    output x + y;
+
+} else {
+    output x + 1;
+}
+
+function boolean and(boolean z){
+return   z;
+}
+

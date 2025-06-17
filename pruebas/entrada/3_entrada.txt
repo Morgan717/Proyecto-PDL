@@ -1,0 +1,18 @@
+/*Tercera prueba con errores sintacticos*/
+
+var int x == 3;
+int nota = 5;
+var string declarando && 5;
+
+function void suma(int i){
+
+return i + 2;
+
+}
+
+
+
+
+
+
+

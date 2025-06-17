@@ -1,0 +1,17 @@
+/* Definir una función para calcular el módulo */
+
+function boolean comparador(int a, int b) {
+    return a == b;	
+}
+
+var int a_1 = 3267;
+
+
+/* Calcular el módulo de num1 y num2 */
+var int resultado = 198;
+
+/* Mostrar el resultado en la consola */
+if(resultado == 198)
+{
+output resultado  + a_1;
+}

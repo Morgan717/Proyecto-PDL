@@ -266,6 +266,10 @@ public class AnalizadorLexico {
                             break;
                         } else {
                             res1 += String.valueOf(cActual);
+                            if (res1.length() > 64) {
+                                error("Longitud de cadena excede máximo de 64 caracteres");
+                                break;
+                            }
                         }
                     }
 

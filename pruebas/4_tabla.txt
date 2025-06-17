@@ -1,0 +1,54 @@
+TABLA PRINCIPAL #1:
+* LEXEMA : 'a'
+	ATRIBUTOS :
+		+ tipo : string 
+		+ desplazamiento : 0 
+
+* LEXEMA : 'b'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 4 
+
+* LEXEMA : 'suma'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : int 
+		+ desplazamiento : 6 
+		+ numParam : 2 
+		+ TipoParam1 : int 
+		+ TipoParam2 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION suma #2:
+* LEXEMA: 'a' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 1 
+		+ desplazamiento : 0 
+* LEXEMA: 'b' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 2 
+		+ desplazamiento : 2 
+---------------------------------------------------
+* LEXEMA : 's'
+	ATRIBUTOS :
+		+ tipo : string 
+		+ desplazamiento : 6 
+
+* LEXEMA : 'error'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : void 
+		+ desplazamiento : 10 
+		+ numParam : 1 
+		+ TipoParam1 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION error #3:
+* LEXEMA: 'x' 
+	ATRIBUTOS :
+		+ tipo : int 
+		+ param : 1 
+		+ desplazamiento : 0 
+---------------------------------------------------

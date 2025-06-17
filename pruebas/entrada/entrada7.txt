@@ -1,0 +1,18 @@
+var int i = 5;
+while (i == 0) {
+    output  i ;
+    i = i + 1;
+}
+
+var string saludo = 'Hola';
+var string nombre = 'Mundo';
+
+output saludo + nombre ;
+
+function int saludoCompleto(string s,string s2) {
+
+    return 4;
+
+}
+
+input entrada;

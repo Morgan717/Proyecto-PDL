@@ -1,0 +1,8 @@
+/*mas errores lexicos*/
+
+var string demasiado_largo = 'holaestestringsuperaellimitede64caracteresquepermiteelcompiladorydeberiasaltarerrorlexico'
+
+/*numero demasiado grande no permitido por el lexico*/
+var int i = 10000000;
+
+var string salida = "string con doble comilla mal";

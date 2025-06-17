@@ -360,16 +360,25 @@ public class AnalizadorSemantico {
                 break;
 
             case "RETURN":
-                if (pilaTipos.isEmpty()) {
-                    // No hay expresión: solo válido si la función es void
-                    if (!"void".equals(tablaS.getTipoRetorno())) {
-                        error("Return sin expresión en función no void");
+                String tipoRetorno = tablaS.getTipoRetorno();
+
+                // Manejar funciones void
+                if ("void".equals(tipoRetorno)) {
+                    if (!pilaTipos.isEmpty()) {
+                        // Extraer y descartar cualquier valor de la pila
+                        String tipoExp = pilaTipos.pop();
+                        error("Función void no puede retornar un valor (tipo: " + tipoExp + ")");
                     }
-                } else {
-                    String tipoExp = pilaTipos.pop();
-                    String tipoRetorno = tablaS.getTipoRetorno();
-                    if (!tipoRetorno.equals(tipoExp)) {
-                        error("Tipo de retorno incorrecto: esperaba " + tipoRetorno + ", recibió " + tipoExp);
+                }
+                // Manejar funciones no void
+                else {
+                    if (pilaTipos.isEmpty()) {
+                        error("Return sin expresión en función no void");
+                    } else {
+                        String tipoExp = pilaTipos.pop();
+                        if (!tipoRetorno.equals(tipoExp)) {
+                            error("Tipo de retorno incorrecto: esperaba " + tipoRetorno + ", recibió " + tipoExp);
+                        }
                     }
                 }
                 break;
