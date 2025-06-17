@@ -4,7 +4,7 @@ var string/* variable global cadena */
 function int FactorialRecursivo (int n)	/* n: parámetro formal de la función entera */
 {
 	if (n == 0)	{return 1;}
-	return n + FactorialRecursivo (n + 1);	/* llamada recursiva */
+	return n + FactorialRecursivo (1);	/* llamada recursiva */
 }
 
 var int uno = 1;	// la inicialización es de implementación opcional

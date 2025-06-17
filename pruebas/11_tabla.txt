@@ -1,7 +1,27 @@
 TABLA PRINCIPAL #1:
-* LEXEMA : 'n'
+* LEXEMA : 's'
+	ATRIBUTOS :
+		+ tipo : string 
+		+ desplazamiento : 0 
+
+* LEXEMA : 'FactorialRecursivo'
+	ATRIBUTOS :
+		+ tipo : funcion 
+		+ tipo retorno : int 
+		+ desplazamiento : 4 
+		+ numParam : 1 
+		+ TipoParam1 : int 
+
+---------------------------------------------------
+TABLA de la FUNCION FactorialRecursivo #2:
+* LEXEMA: 'n' 
 	ATRIBUTOS :
 		+ tipo : int 
 		+ param : 1 
 		+ desplazamiento : 0 
+---------------------------------------------------
+* LEXEMA : 'uno'
+	ATRIBUTOS :
+		+ tipo : int 
+		+ desplazamiento : 4 
 

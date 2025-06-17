@@ -26,5 +26,13 @@
 <OpArSuma,>
 <id,4>
 <ParIzq,>
-<id,0>
-<OpArSuma,>
+<Cte,1>
+<ParDrch,>
+<PuntoComa,>
+<LlavDrch,>
+<VAR,>
+<INT,>
+<id,7>
+<Asig,>
+<Cte,1>
+<PuntoComa,>

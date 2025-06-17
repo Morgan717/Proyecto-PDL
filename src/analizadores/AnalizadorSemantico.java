@@ -103,6 +103,12 @@ public class AnalizadorSemantico {
                 break;
             case "id":
                 String tipo = tablaS.getTipo(lexema);
+
+                // Manejar funciones como su tipo de retorno
+                if ("funcion".equals(tipo)) {
+                    tipo = tablaS.getTipoRetorno(lexema);
+                }
+
                 if (tipo.isEmpty()) {
                     error("Variable no declarada: " + lexema);
                     pilaTipos.push("error");

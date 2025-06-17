@@ -92,10 +92,15 @@ public class AnalizadorSintactico {
     private String determinarTipo(String token, String lexema) {
         if ("id".equals(token)) {
             String tipo = tablaS.getTipo(lexema);
+
+            // Si es función, devolver su tipo de retorno
+            if ("funcion".equals(tipo)) {
+                return tablaS.getTipoRetorno(lexema);
+            }
             return tipo != null ? tipo : "error";
         }
         if ("cte".equals(token)) return "int";
-        if ("cad".equals(token)) return "string";  // Literales de cadena son tipo "string"
+        if ("cad".equals(token)) return "string";
         if ("true".equals(token) || "false".equals(token)) return "boolean";
         return token;
     }
