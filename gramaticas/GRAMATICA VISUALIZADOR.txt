@@ -23,9 +23,9 @@ DECLX -> lambda
 ASIGN -> %= EXP
 ASIGN -> = EXP
 EXP -> VAL EXPX
-EXPX -> + EXP
-EXPX -> && EXP
-EXPX -> == EXP
+EXPX -> + VAL EXPX
+EXPX -> && VAL EXPX
+EXPX -> == VAL EXPX
 EXPX -> lambda
 VAL -> id VALX
 VAL -> cte

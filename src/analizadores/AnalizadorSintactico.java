@@ -344,6 +344,7 @@ public class AnalizadorSintactico {
                 }
 
             } else if (tokenSig.equals("cte")) {
+                salida.write("22 ");
                 int valor = semantico.getCte();
                 equipara("cte");
                 semantico.procesarOperando("cte", String.valueOf(valor));

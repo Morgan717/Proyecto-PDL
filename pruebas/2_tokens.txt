@@ -1,0 +1,7 @@
+<VAR,>
+<INT,>
+<id,1>
+<Asig,>
+<Cte,3>
+<PuntoComa,>
+<eof,>

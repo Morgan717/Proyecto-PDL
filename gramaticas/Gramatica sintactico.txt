@@ -33,16 +33,16 @@ ASIGN -> = EXP		15
 EXP -> VAL EXPX  	16
 
 
-EXPX -> + EXP		17
-EXPX -> && EXP		18
-EXPX -> == EXP		19
+EXPX -> + VAL EXPX	17
+EXPX -> && VAL EXPX	18
+EXPX -> == VAL EXPX	19
 EXPX -> lambda 		20
 
-VAL -> id VALX  21
+VAL -> id VALX  	21
 VAL -> cte		22
 VAL -> cad		23
-VALX -> FUNC_CALL 24
-VALX -> lambda 25
+VALX -> FUNC_CALL 	24
+VALX -> lambda 		25
 
 
 WHILE_LOOP -> while ( EXP ) { BODY }	26
