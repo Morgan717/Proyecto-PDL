@@ -99,9 +99,12 @@ public class AnalizadorSintactico {
         START();
     }
     private String determinarTipo(String token, String lexema) {
-        if ("id".equals(token)) return tablaS.getTipo(lexema);
+        if ("id".equals(token)) {
+            String tipo = tablaS.getTipo(lexema);
+            return tipo != null ? tipo : "error";
+        }
         if ("cte".equals(token)) return "int";
-        if ("cad".equals(token)) return "string";
+        if ("cad".equals(token)) return "string";  // Literales de cadena son tipo "string"
         if ("true".equals(token) || "false".equals(token)) return "boolean";
         return token;
     }
@@ -219,17 +222,41 @@ public class AnalizadorSintactico {
         try {
             if (tokenSig.equals("%=")) {
                 salida.write("14 ");
-                // token actual = id
-                pos.setProduccion("%="); // nombre del lexema
-                avanzar();
-                EXP();
+                pos.setProduccion("%=");
+
+                // Guardar información del lado izquierdo
+                String nombreVar = semantico.getLexema();
+                String tipoVar = tablaS.getTipo(nombreVar);
+                tokenBuffer.addToken("id", nombreVar, tipoVar);
+
+                // Agregar el operador al buffer
+                tokenBuffer.addToken("%=", "%=", "operador");
+
+                avanzar(); // Consumir el %=
+                EXP();     // Procesar el lado derecho
+
+                // Procesar semántica de la asignación
+                semantico.procesarAsignacionCompleta(tokenBuffer);
+
             } else if (tokenSig.equals("=")) {
                 salida.write("15 ");
-                // token actual = id
-                pos.setProduccion("="); // nombre del lexema
-                avanzar();
-                EXP();
-            } else if (tokenSig.equals("eof")) {
+                pos.setProduccion("=");
+
+                // Guardar información del lado izquierdo
+                String nombreVar = semantico.getLexema();
+                String tipoVar = tablaS.getTipo(nombreVar);
+                tokenBuffer.addToken("id", nombreVar, tipoVar);
+
+                // Agregar el operador al buffer
+                tokenBuffer.addToken("=", "=", "operador");
+
+                avanzar(); // Consumir el =
+                EXP();     // Procesar el lado derecho
+
+                // Procesar semántica de la asignación
+                semantico.procesarAsignacionCompleta(tokenBuffer);
+
+            } else if(tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             } else {
                 error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
@@ -244,13 +271,16 @@ public class AnalizadorSintactico {
         try {
             salida.write("16 ");
             semantico.setTokenBuffer(tokenBuffer);
-            semantico.iniciarExpresion();  // Iniciar nueva expresión
+            semantico.iniciarExpresion();
 
-            // Procesar primer operando
             VAL();
-
-            // Llamar a EXPX para operadores posteriores
             EXPX();
+
+            // Agregar el token actual al buffer si es parte de una expresión
+            if (!tokenActual.equals(")")) { // Evitar duplicados en llamadas a función
+                String tipo = determinarTipo(tokenActual, semantico.getLexema());
+                tokenBuffer.addToken(tokenActual, semantico.getLexema(), tipo);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -259,30 +289,44 @@ public class AnalizadorSintactico {
 
     private void EXPX() {
         try {
-            // token sig + && ==
             String operador = tokenSig;
             if (tokenSig.equals("+")) {
                 salida.write("17 ");
-                avanzar();// consumimos el operador
+
+                // Agregar operador al buffer
+                tokenBuffer.addToken("+", "+", "operador");
+
+                avanzar();
                 VAL();
                 semantico.procesarOperador(operador);
                 EXPX();
+
             } else if (tokenSig.equals("&&")) {
                 salida.write("18 ");
+
+                // Agregar operador al buffer
+                tokenBuffer.addToken("&&", "&&", "operador");
+
                 avanzar();
                 VAL();
                 semantico.procesarOperador(operador);
                 EXPX();
+
             } else if (tokenSig.equals("==")) {
                 salida.write("19 ");
+
+                // Agregar operador al buffer
+                tokenBuffer.addToken("==", "==", "operador");
+
                 avanzar();
                 VAL();
                 semantico.procesarOperador(operador);
                 EXPX();
+
             } else if (tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             } else {
-                salida.write("20 "); // lambda
+                salida.write("20 ");
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -290,40 +334,47 @@ public class AnalizadorSintactico {
     }
 
     private void VAL() {
-        // token actual return
-        // token sig id cte o cad
         try {
             if (tokenSig.equals("id")) {
                 salida.write("21 ");
                 String lexema = semantico.getLexema();
+                String tipo = determinarTipo("id", lexema);
+
                 equipara("id");
                 semantico.procesarOperando("id", lexema);
-                // caso muy concreto de llamada a funciones
-                if(tokenSig=="("){
+
+                // Agregar identificador al buffer
+                tokenBuffer.addToken("id", lexema, tipo);
+
+                if(tokenSig.equals("(")) {
                     salida.write("24 ");
                     FUNC_CALL();
+                } else {
+                    salida.write("25 ");
                 }
-                else {salida.write("25 ");}
-                // Actualizar posición después de equiparar
-                pos.setTokenActual(tokenActual);
-                pos.setTokenSig(tokenSig);
+
             } else if (tokenSig.equals("cte")) {
                 int valor = semantico.getCte();
                 equipara("cte");
                 semantico.procesarOperando("cte", String.valueOf(valor));
-                pos.setTokenActual(tokenActual);
-                pos.setTokenSig(tokenSig);
+
+                // Agregar constante al buffer
+                tokenBuffer.addToken("cte", String.valueOf(valor), "int");
+
             } else if (tokenSig.equals("cad")) {
                 salida.write("23 ");
                 String valor = semantico.getCadena();
                 equipara("cad");
                 semantico.procesarOperando("cad", valor);
-                pos.setTokenActual(tokenActual);
-                pos.setTokenSig(tokenSig);
-            }
-            else if(tokenSig.equals("eof")){
+
+                // Agregar cadena al buffer
+                tokenBuffer.addToken("cad", valor, "string");
+
+            } else if(tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
-            }else error("Error de variable, valor no esperado: " + tokenSig );
+            } else {
+                error("Error de variable, valor no esperado: " + tokenSig);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

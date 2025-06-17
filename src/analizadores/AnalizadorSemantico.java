@@ -153,6 +153,70 @@ public class AnalizadorSemantico {
                 break;
         }
     }
+    public void procesarAsignacionCompleta(TokenBuffer buffer) {
+        List<TokenBuffer.TokenInfo> tokens = buffer.getAllTokens();
+
+        // Buscar la posición del operador de asignación
+        int posAsignacion = -1;
+        for (int i = 0; i < tokens.size(); i++) {
+            if (tokens.get(i).token.equals("=") || tokens.get(i).token.equals("%=")) {
+                posAsignacion = i;
+                break;
+            }
+        }
+
+        if (posAsignacion == -1) {
+            error("Asignación mal formada: no se encontró operador de asignación");
+            return;
+        }
+
+        // Verificar que haya tokens antes y después del operador
+        if (posAsignacion < 1 || posAsignacion >= tokens.size() - 1) {
+            error("Asignación incompleta");
+            return;
+        }
+
+        // Obtener información del lado izquierdo (variable)
+        TokenBuffer.TokenInfo varToken = tokens.get(posAsignacion - 1);
+        String tipoVar = varToken.tipo;
+        String nombreVar = varToken.lexema;
+
+        // Obtener información del lado derecho (expresión)
+        TokenBuffer.TokenInfo exprToken = tokens.get(posAsignacion + 1);
+        String tipoExpr = exprToken.tipo;
+
+        // Manejar tipos especiales
+        if (tipoExpr == null) tipoExpr = "";
+        if (tipoVar == null) tipoVar = "";
+
+        // Manejar casos especiales para cadenas
+        if ("cad".equals(exprToken.token)) {
+            tipoExpr = "string";
+        }
+
+        // Verificar declaración de variable
+        if (tipoVar.isEmpty()) {
+            error("Variable no declarada: " + nombreVar);
+            return;
+        }
+
+        // Obtener operador
+        String operador = tokens.get(posAsignacion).token;
+
+        // Verificar compatibilidad de tipos según el operador
+        if ("%=".equals(operador)) {
+            if (!"int".equals(tipoVar) || !"int".equals(tipoExpr)) {
+                error("Asignación %= requiere que ambos lados sean enteros");
+            }
+        } else {
+            if (!tipoVar.equals(tipoExpr)) {
+                error("Tipos incompatibles en asignación: " + tipoVar + " vs " + tipoExpr);
+            }
+        }
+
+        // Limpiar el buffer después de procesar
+        buffer.clear();
+    }
     private void procesarExpresionCompleta() {
         if (tokenBuffer == null) return;
 

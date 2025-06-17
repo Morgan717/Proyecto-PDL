@@ -63,4 +63,9 @@ public class TokenBuffer {
     public int getCurrentPosition() {
         return currentIndex;
     }
+
+    public void clear(){
+        tokens.clear();
+        currentIndex = 0;
+    }
 }

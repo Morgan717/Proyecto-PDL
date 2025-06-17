@@ -1,1 +1,1 @@
-Error de tipo: Sintactico; Se esperaba '{', encontrado 'return' linea de codigo: 6
+Error de tipo: Sintactico; Valor no esperado: '+' despues de: 'n' linea de codigo: 8
