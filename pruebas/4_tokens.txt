@@ -44,5 +44,3 @@
 <RETURN,>
 <id,0>
 <PuntoComa,>
-<LlavDrch,>
-<eof,>

@@ -471,16 +471,17 @@ public class AnalizadorSintactico {
             if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
                 if(tokenSig.equals("id"))  pos.setTokenSig(semantico.getLexema());
                 salida.write("35 ");
-                // token actual return
-                // token siguiente id cte cad
-                // posTokenSig cte cad o nombre id
-                semantico.iniciarExpresion();  // Iniciar nueva expresión
                 EXP();
+                pos.setProduccion("RETURN");
+                semantico.procesar();
             }
             else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             }else {
                 salida.write("36 "); // solo return
+                // Verificación para return sin valor
+                pos.setProduccion("RETURN");
+                semantico.procesar();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

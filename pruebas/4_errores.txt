@@ -1,0 +1,4 @@
+Error de tipo: Sintactico; Error de variable, valor no esperado: ; linea de codigo: 2
+Error de tipo: Sintactico; Error al definir funcion: valor ineseperado despues de function: id linea de codigo: 5
+Error de tipo: Semantico; Tipos incompatibles en asignación: string vs int linea de codigo: 11
+Error de tipo: Semantico; Función void no puede retornar un valor (tipo: int) linea de codigo: 14
