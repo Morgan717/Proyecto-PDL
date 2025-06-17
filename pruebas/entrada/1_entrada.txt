@@ -5,11 +5,12 @@ s = 'hola';
 function int FactorialRecursivo (int n)	/* n: parámetro formal de la función entera */
 {
 	if (n == 0){return 1;}
-	return n + FactorialRecursivo(n + 1);	/* llamada recursiva */
+	return n + 1;	/* llamada recursiva */
 }
 
-var int uno = 1;	// la inicialización es de implementación opcional
+var int uno = 1;	
 var int UNO = uno;
+
 
 function string salto (void)
 {

@@ -657,7 +657,17 @@ public class AnalizadorSintactico {
             salida.write("52 ");
             if(tokenSig.equals("(")) {
                 pos.setProduccion("LLAMADA");
-                // llamamos antes de equiparar para que no se actualice el lexema en el semantico por un posible id en la llamada
+                // Guardar información de la función
+                String nombreFuncion = semantico.getLexema();
+                String tipoFuncion = tablaS.getTipo(nombreFuncion);
+                String tipoRetorno = "";
+
+                if ("funcion".equals(tipoFuncion)) {
+                    tipoRetorno = tablaS.getTipoRetorno(nombreFuncion);
+                }
+
+                // Añadir función al buffer con su tipo de retorno
+                tokenBuffer.addToken("id", nombreFuncion, tipoRetorno);
                 semantico.procesar();
                 equipara("(");//ahora token actual (
                 //lexema en el semantico es el id de funcion  a si que llamamos

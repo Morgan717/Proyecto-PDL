@@ -185,14 +185,14 @@ public class AnalizadorSemantico {
         TokenBuffer.TokenInfo exprToken = tokens.get(posAsignacion + 1);
         String tipoExpr = exprToken.tipo;
 
+        // Si es una llamada a función, obtener el tipo de retorno real
+        if ("funcion".equals(tipoExpr)) {
+            tipoExpr = tablaS.getTipoRetorno(exprToken.lexema);
+        }
+
         // Manejar tipos especiales
         if (tipoExpr == null) tipoExpr = "";
         if (tipoVar == null) tipoVar = "";
-
-        // Manejar casos especiales para cadenas
-        if ("cad".equals(exprToken.token)) {
-            tipoExpr = "string";
-        }
 
         // Verificar declaración de variable
         if (tipoVar.isEmpty()) {

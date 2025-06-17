@@ -1,0 +1,1 @@
+Error de tipo: Semantico; Tipos incompatibles en asignación: int vs boolean linea de codigo: 11

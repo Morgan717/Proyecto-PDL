@@ -20,7 +20,7 @@ public class Main {
             // Crear carpeta "pruebas" si no existe
             File pruebasDir = new File(basePath + "/pruebas");
             if (!pruebasDir.exists()) { pruebasDir.mkdirs();}
-            int i = 1;// diferentes ficheros
+            int i =0;// diferentes ficheros
 
             try {
                 // Crear archivos directamente en la carpeta actual
