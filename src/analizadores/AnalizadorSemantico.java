@@ -435,20 +435,25 @@ public class AnalizadorSemantico {
     }
     public void finLlamada() {
         List<String> parametros = tablaS.getParametros(llamada);
-        Collections.reverse(argumentos); // como es una pila le damos la vuelta
+        Collections.reverse(argumentos);
 
-        // comparamos numero de argumentos
         if (parametros.size() != argumentos.size()) {
-            error("Número incorrecto de argumentos...");
+            error("Número incorrecto de argumentos");
             return;
         }
 
-        //comparamos tipo de argumentos
         for (int i = 0; i < parametros.size(); i++) {
             if (!parametros.get(i).equals(argumentos.get(i))) {
                 error("Tipo incorrecto en argumento " + (i+1) + "...");
             }
         }
+
+        // APILAR EL TIPO DE RETORNO DE LA FUNCIÓN
+        String tipoRetorno = tablaS.getTipoRetorno(llamada);
+        if (!"void".equals(tipoRetorno)) {
+            pilaTipos.push(tipoRetorno);
+        }
+
         argumentos.clear();
     }
 

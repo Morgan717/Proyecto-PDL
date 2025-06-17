@@ -230,7 +230,8 @@ public class AnalizadorSintactico {
                 tokenBuffer.addToken("%=", "%=", "operador");
 
                 avanzar(); // Consumir el %=
-                EXP();     // Procesar el lado derecho
+                semantico.iniciarExpresion();  // Iniciar nueva expresión para la asignación
+                EXP();
 
                 // Procesar semántica de la asignación
                 semantico.procesarAsignacionCompleta(tokenBuffer);
@@ -249,6 +250,7 @@ public class AnalizadorSintactico {
                 tokenBuffer.addToken("=", "=", "operador");
 
                 avanzar(); // Consumir el =
+                semantico.iniciarExpresion();  // Iniciar nueva expresión para la asignación
                 EXP();     // Procesar el lado derecho
 
                 // Procesar semántica de la asignación
@@ -270,7 +272,6 @@ public class AnalizadorSintactico {
         try {
             salida.write("16 ");
             semantico.setTokenBuffer(tokenBuffer);
-            semantico.iniciarExpresion();
 
             VAL();
             EXPX();
@@ -482,6 +483,7 @@ public class AnalizadorSintactico {
             if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
                 if(tokenSig.equals("id"))  pos.setTokenSig(semantico.getLexema());
                 salida.write("35 ");
+                semantico.iniciarExpresion();  // Iniciar nueva expresión para el return
                 EXP();
                 pos.setProduccion("RETURN");
                 semantico.procesar();
@@ -686,9 +688,8 @@ public class AnalizadorSintactico {
             //token actual (
             if (tokenSig.equals("id") || tokenSig.equals("cte") || tokenSig.equals("cad")) {
                 salida.write("53 ");//importante despues de comprobar puedes entrar y no hacer nada
-                VAL();// ahora el token actual es id cte cad
+                EXP();// ahora el token actual es id cte cad
                 pos.setProduccion("ARGUMENTOS");
-                pos.setTokenActual(tokenActual);
                 semantico.procesar();
                 ARGUMENTOSX();  // posibles más argumentos
             }   else if(tokenSig.equals("eof")){
@@ -706,9 +707,8 @@ public class AnalizadorSintactico {
             if (tokenSig.equals(",")) {
                 salida.write("55 "); //importante despues de comprobar puedes entrar y no hacer nada
                 equipara(",");
-                VAL();// ahora el token actual es id cte cad
+               EXP();// ahora el token actual es id cte cad
                 pos.setProduccion("ARGUMENTOS");
-                pos.setTokenActual(tokenActual);
                 semantico.procesar();
                 ARGUMENTOSX();  // posibles más argumentos
             }   else if(tokenSig.equals("eof")){

@@ -1,1 +1,1 @@
-Error de tipo: Lexico; Caracter no reconocido:  linea de codigo: 10
+Error de tipo: Semantico; Número incorrecto de argumentos... linea de codigo: 7
