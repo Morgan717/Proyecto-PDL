@@ -13,20 +13,20 @@ var int UNO = uno;
 function int FactorialDo (int n)
 {
 	var int factorial = 0 + uno + 1;	/* variable local inicializada a uno*/
-	do
+	 while (n == 0)
 	{
-		factorial *= n--;	/* equivale a: factorial = factorial * n; n = n - 1;*/
-	} while (n != 0);		/* mientras n no sea 0*/
+		factorial %= n;	/* equivale a: factorial = factorial * n; n = n - 1;*/
+	}		/* mientras n no sea 0*/
 	return factorial;		/* devuelve el valor entero de la variable factorial*/
 }
 
-function int FactorialWhile (void)
+function int FactorialWhile ()
 {
-	var int factorial = 1;	// variables locales: factorial inicializada a 1
-	var   int i;			// variables locales: i inicializada a 0 por omisión
-	while (i < num)			// num es variable global entera sin declarar
+	var int factorial = 1;	/* variables locales: factorial inicializada a 1*/
+	var  int i;			/* variables locales: i inicializada a 0 por omisión*/
+	while (i == num)		// num es variable global entera sin declarar
 	{
-		factorial *= ++i;	// equivale a: i = i + 1; factorial = factorial * i;
+			// equivale a: i = i + 1; factorial = factorial * i;
 	}
 	return factorial;
 }

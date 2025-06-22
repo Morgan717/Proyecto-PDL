@@ -20,7 +20,8 @@ public class TablaSimbolos {
     private List<String> argumentos;
     private File salida;
     private FileWriter escritura;
-    public TablaSimbolos(File salida) {
+    GestorErrores gestorE;
+    public TablaSimbolos(File salida, GestorErrores gestor) {
         try{
             this.salida = salida;
             this.escritura= new FileWriter(this.salida);
@@ -32,9 +33,10 @@ public class TablaSimbolos {
         tablaG= new LinkedHashMap<>();
         tablaActual = tablaG;
         this.pilaTFun = new LinkedHashMap<>();
+        this.gestorE = gestor;
     }
-    public void setUltimaLLamada(String llamada){
-
+    private void error(String mensaje) {
+        gestorE.error("",mensaje);
     }
     public int getDespLocal() { return despLocal; }
     public void setDespLocal(int i ) { despLocal= i; }
@@ -119,22 +121,38 @@ public class TablaSimbolos {
     }
     public String getTipo(String id) {
         String res = "";
-        boolean encontrado= false;
-        for(String clave: tablaActual.keySet()){
-            if(clave.equals(id)){
-                res = tablaActual.get(clave).getTipo();
-                encontrado= true;
+        boolean encontrado = false;
+
+        // Buscar en tabla actual
+        for (String clave : tablaActual.keySet()) {
+            if (clave.equals(id)) {
+                Atributos attr = tablaActual.get(clave);
+                if (attr == null) {
+                    gestorE.error("Semántico", "La variable '" + id + "'no esta inicializada");
+                    return "error";
+                }
+                res = attr.getTipo();
+                encontrado = true;
+                break;
             }
         }
-        if(!encontrado) {
-            for (String clave2 : tablaG.keySet()) {
-                if (clave2.equals(id)) {
-                    res = tablaG.get(clave2).getTipo();
+
+        if (!encontrado) {
+            // Buscar en tabla global
+            for (String clave : tablaG.keySet()) {
+                if (clave.equals(id)) {
+                    Atributos attr = tablaG.get(clave);
+                    if (attr == null)
+                        gestorE.error("Semántico", "La variable '" + id + "'no esta inicializada");
+                    res = attr.getTipo();
                     encontrado = true;
+                    break;
                 }
             }
         }
-        if(!encontrado) System.err.println("TablaSimbolos, Se esta intentando buscar el tipo del id: "+ id + " que no existe");
+
+        if (!encontrado)
+            gestorE.error("Semántico", "Variable no declarada: '" + id + "'");
         return res;
     }
     // este se usa para los return comprobar el retorno de la ultima funcion

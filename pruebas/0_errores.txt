@@ -1,1 +1,1 @@
-Error de tipo: Sintactico; Valor no esperado: '{' detras deid linea de codigo: 17
+Error de tipo: Semántico; La variable 'num'no esta inicializada linea de codigo: 27

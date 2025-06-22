@@ -104,6 +104,9 @@ public class AnalizadorSemantico {
             case "id":
                 String tipo = tablaS.getTipo(lexema);
 
+                if (tipo == null || tipo.isEmpty())
+                    error("Variable '" + lexema + "' no tiene tipo asignado");
+
                 // Manejar funciones como su tipo de retorno
                 if ("funcion".equals(tipo)) {
                     tipo = tablaS.getTipoRetorno(lexema);

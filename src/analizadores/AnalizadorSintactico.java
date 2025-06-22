@@ -93,6 +93,7 @@ public class AnalizadorSintactico {
         if ("id".equals(token)) {
             String tipo = tablaS.getTipo(lexema);
 
+
             // Si es función, devolver su tipo de retorno
             if ("funcion".equals(tipo)) {
                 return tablaS.getTipoRetorno(lexema);
