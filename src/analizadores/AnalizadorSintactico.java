@@ -347,7 +347,6 @@ public class AnalizadorSintactico {
                     FUNC_CALL();
                 } else {
                     salida.write("25 ");
-                    tokenBuffer.addToken("id", lexema, tablaS.getTipo(lexema));
                 }
 
             } else if (tokenSig.equals("cte")) {

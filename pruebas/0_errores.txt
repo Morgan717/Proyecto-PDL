@@ -1,0 +1,1 @@
+Error de tipo: Semantico; Operación lógica no válida entre boolean y int linea de codigo: 4
