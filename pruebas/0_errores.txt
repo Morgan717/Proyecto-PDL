@@ -1,1 +1,0 @@
-Error de tipo: Semántico; La variable 'num'no esta inicializada linea de codigo: 27

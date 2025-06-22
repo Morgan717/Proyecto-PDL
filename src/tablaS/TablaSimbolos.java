@@ -156,30 +156,42 @@ public class TablaSimbolos {
         return res;
     }
     // este se usa para los return comprobar el retorno de la ultima funcion
-    public  String getTipoRetorno(){
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,Se esta intentando de acceder a un funcion no definida");return "";}
-        String ultimaFuncion="";
-        for (String key : pilaTFun.keySet()) {ultimaFuncion = key;}
-        if(ultimaFuncion.isEmpty()){ System.err.println("TablaSimbolos, Error al acceder a la ultima funcion en tipoRetorno"); return "";}
-        String res = tablaG.get(ultimaFuncion).getTipoRetorno();
-        return res;
-    }
-    public  String getTipoRetorno(String funcion){
-        if(pilaTFun.isEmpty()){System.err.println("TablaSimbolos,Se esta intentando de acceder a un funcion no definida");return "";}
-        for (String key : pilaTFun.keySet()) {
-            if(key.equals(funcion)){
-
-            }
+    public String getTipoRetorno() {
+        if(pilaTFun.isEmpty()) {
+            gestorE.error("Semántico", "Se está intentando obtener el tipo de retorno sin función activa");
+            return "error";
         }
-        if(funcion.isEmpty()){ System.err.println("TablaSimbolos, Error al acceder a la ultima funcion en tipoRetorno"); return "";}
-        String res = tablaG.get(funcion).getTipoRetorno();
-        return res;
+
+        String ultimaFuncion = "";
+        for (String key : pilaTFun.keySet()) {
+            ultimaFuncion = key;
+        }
+
+        return getTipoRetorno(ultimaFuncion);
+    }
+    public String getTipoRetorno(String funcion) {
+        Atributos attr = tablaG.get(funcion);
+        if (attr == null) {
+            gestorE.error("Semántico", "La función '" + funcion + "' no tiene atributos asignados");
+            return "error";
+        }
+
+        String tipo = attr.getTipoRetorno();
+        if (tipo == null || tipo.isEmpty()) {
+            gestorE.error("Semántico", "La función '" + funcion + "' no tiene tipo de retorno definido");
+            return "error";
+        }
+
+        return tipo;
     }
     public List<String> getParametros(String funcion) {
-        if (!tablaG.containsKey(funcion)) System.err.println ("Se ha tratado de acceder a los parametros de una funcion que no existe");
-        Atributos atributos = tablaG.get(funcion);
-        if (atributos == null) return new ArrayList<>();
-        return atributos.getParametros();
+        Atributos attr = tablaG.get(funcion);
+        if (attr == null) {
+            gestorE.error("Semántico", "La función '" + funcion + "' no tiene atributos asignados");
+            return Collections.emptyList();
+        }
+
+        return attr.getParametros();
     }
 
 
