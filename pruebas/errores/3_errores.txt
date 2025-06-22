@@ -1,3 +1,0 @@
-Error de tipo: Sintactico; Declaracion mal hecha linea de codigo: 3
-Error de tipo: Sintactico; Error al principio de linea se ha encontrado un valor no esperado: int linea de codigo: 4
-Error de tipo: Sintactico; Declaracion mal hecha linea de codigo: 5

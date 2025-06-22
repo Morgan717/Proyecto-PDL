@@ -1,3 +1,0 @@
-Error de tipo: Lexico; Longitud de cadena excede máximo de 64 caracteres linea de codigo: 3
-Error de tipo: Lexico; Entero superior al limite de 32767 linea de codigo: 6
-Error de tipo: Lexico; Caracter no reconocido: " linea de codigo: 8

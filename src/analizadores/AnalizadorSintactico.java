@@ -260,7 +260,7 @@ public class AnalizadorSintactico {
             } else if(tokenSig.equals("eof")) {
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             } else {
-                error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
+                error("Valor no esperado: '" + tokenSig+"' detras de " + tokenActual);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -593,7 +593,7 @@ public class AnalizadorSintactico {
                     error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
                     break;
                 default:
-                    error("error de tipo: tipo no reconocido");
+                    error("error de tipo se esperaba encontrar un tipo y se ha encontrado: " + tokenSig);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -651,7 +651,7 @@ public class AnalizadorSintactico {
             }else if(tokenSig.equals("eof")){
                 error("Sentencia incompleta se ha acabado el fichero antes de lo esperado");
             } else {
-                error("Error al asignar se ha encontrado un operador no esperado: " + tokenSig);
+                error("Valor no esperado: '" + tokenSig+"' detras de " + tokenActual);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

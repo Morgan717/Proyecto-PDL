@@ -89,7 +89,7 @@ public class AnalizadorLexico {
                     gestorE.setLinea(++numeroLineaEntrada);
                 }
             } else
-                error("Caracter no reconocido: "+lexema);
+                error("Caracter no esperado detras de '/'");
 
         } catch (IOException e) {
             e.printStackTrace();
